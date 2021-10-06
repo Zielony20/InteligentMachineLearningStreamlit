@@ -64,24 +64,57 @@ def loadInterface():
     X_train, X_valid, y_train, y_valid = train_test_split(my_dataframe[0:column_number], range(column_number),
                                                           train_size=0.8, test_size=0.2, random_state=42)
 
+
+
     if active_coefficient != '':
-        print(my_dataframe[active_coefficient])
-        print(my_dataframe['Age'])
-        print(np.array([ my_dataframe[active_coefficient].to_numpy, my_dataframe['Age'].to_numpy ]))
 
-        df = pd.DataFrame(
-            my_dataframe[active_coefficient, 'Survived'],
-            columns=[active_coefficient, 'b'])
+        # Space out the maps so the first one is 2x the size of the other three
+        c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
+        columns_array = [c1, c2, c3, c4]
+        counter = 0
+        for coefficient in numeric_object_cols:
 
-        print(df)
-        st.vega_lite_chart(df, {
-            'mark': {'type': 'circle', 'tooltip': True},
-            'encoding': {
-                'x': {'field': active_coefficient, 'type': 'quantitative'},
-                'y': {'field': 'b', 'type': 'quantitative'}
+            if counter==1:
+                with c1:
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+            if counter == 2:
+                with c2:
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+            if counter == 3:
+                with c3:
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+            if counter == 4:
+                with c4:
+                    print_chart(my_dataframe, active_coefficient, coefficient)
 
-            },
-        })
+            counter += 1
+            if counter >= 5:
+                counter = 1
+
+
+        for coefficient in float_object_cols:
+            if counter == 1:
+                with c1:
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+            if counter == 2:
+                with c2:
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+            if counter == 3:
+                with c3:
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+            if counter == 4:
+                with c4:
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+
+            counter += 1
+            if counter >= 5:
+                counter = 1
+
+
+
+    # Use the full page instead of a narrow central column
+
+
 
 
 '''

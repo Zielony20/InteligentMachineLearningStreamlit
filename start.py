@@ -9,22 +9,11 @@ from loadInterface import *
 
 
 
+st.set_page_config(layout="wide")
+
 upload_csv = st.file_uploader("put csv file")
 if (upload_csv is None):
     pass
 if (upload_csv is not None):
     save_uploadedfile(upload_csv)
     loadInterface()
-
-
-
-
-
-
-
-
-
-
-
-
-
