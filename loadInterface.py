@@ -19,14 +19,18 @@ def loadInterface():
     #print("Categorical variables:")
     #print(object_cols)
 
+    f = (my_dataframe.dtypes == 'float64')
+    float_object_cols = list(f[f].index)
+
     n = (my_dataframe.dtypes == 'int64')
-    numeric_object_cols = list(n[n].index)
+    numeric_object_cols = list(n[n].index) + float_object_cols
 
     #print("Numerical Variable")
     #print(numeric_object_cols)
 
-    f = (my_dataframe.dtypes == 'float64')
-    float_object_cols = list(f[f].index)
+
+
+
 
     #print("Float Variable")
     #print(float_object_cols)
@@ -62,8 +66,26 @@ def loadInterface():
             column_names)
         #json_widget_saver['value_to_predict'] = value_to_predict
         #saveWidgets()
-        
+
+        option_use_to_predict = st.multiselect(
+            'Which coefficient use to predict',
+            [i for i in numeric_object_cols],
+            [i for i in numeric_object_cols])
+
+        #st.write('You selected:', option_use_to_predict)
+
+        algorithm_model = st.selectbox(
+            'Which Machine Learning model use?',
+            ['1','2','3'])
+        #json_widget_saver['algorithm_model'] = value_to_predict
+        #saveWidgets()
+
+        st.button("Create Model")
+        st.button("Test Model")
+
     column_number = len(my_dataframe)
+
+
 
     # train_set = my_dataframe[0:column_number*0.8]
     # test_set = my_dataframe[column_number*0.8+1:column_number*0.8]
@@ -116,32 +138,20 @@ def loadInterface():
                 dataFrameWidget.empty()
                 dataFrameWidget.dataframe(my_dataframe)
 
+        #fig, ax = plt.subplots()
+        #ax.hist
 
+        #hist = my_dataframe[active_coefficient].hist()
+        arr = np.random.normal(1, 1, size=100)
+        fig, ax = plt.subplots()
+        ax.hist(my_dataframe[active_coefficient].to_numpy(), bins=20)
+        st.pyplot(fig)
         # Space out the maps so the first one is 2x the size of the other three
         c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
         columns_array = [c1, c2, c3, c4]
         counter = 0
         for coefficient in numeric_object_cols:
 
-            if counter == 1:
-                with c1:
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-            if counter == 2:
-                with c2:
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-            if counter == 3:
-                with c3:
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-            if counter == 4:
-                with c4:
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-
-            counter += 1
-            if counter >= 5:
-                counter = 1
-
-
-        for coefficient in float_object_cols:
             if counter == 1:
                 with c1:
                     print_chart(my_dataframe, active_coefficient, coefficient)
