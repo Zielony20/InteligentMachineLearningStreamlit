@@ -1,19 +1,28 @@
 import streamlit as st
-from PIL import Image
 import pandas as pd
 import base64
 import matplotlib.pyplot as plt
-from translate import Translator
 from functions import *
 from loadInterface import *
 
 st.set_page_config(layout="wide")
 
 
+upload_csv = st.file_uploader("put csv file", type='csv')
 
-upload_csv = st.file_uploader("put csv file")
 if (upload_csv is None):
+    print("resetuje")
     resetWidgets()
-if (upload_csv is not None):
-    save_uploadedfile(upload_csv)
+
+if (json_widget_saver['upload_file'] == "1"):
+    print(upload_csv)
     loadInterface()
+
+elif (upload_csv is not None):
+    print("wykonuje sie")
+    save_uploadedfile(upload_csv)
+    json_widget_saver['upload_file'] = "1"
+    saveWidgets()
+
+    loadInterface()
+

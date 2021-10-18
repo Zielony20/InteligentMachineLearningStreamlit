@@ -6,7 +6,6 @@ import pandas as pd
 import json
 
 if __name__!="__main__":
-    print(__name__)
     PWD = os.getcwd()
     with open('widget.json', 'r') as openjson:
         json_widget_saver = json.load(openjson)
@@ -67,6 +66,8 @@ def resetWidgets():
     json_widget_saver['change_value_btn'] = ""
     json_widget_saver['scale_btn'] = ""
     json_widget_saver['missing_value_btn'] = ""
+    json_widget_saver['apply_scaler'] = ""
+    json_widget_saver['upload_file'] = ""
     with open("widget.json", "w") as outfile:
         json.dump(json_widget_saver, outfile)
     outfile.close()

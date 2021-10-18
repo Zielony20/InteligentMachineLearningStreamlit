@@ -7,17 +7,12 @@ from sklearn.model_selection import train_test_split
 
 
 def loadInterface():
+
     my_dataframe = pd.read_csv(PWD + '/data.csv')
     dataFrameWidget = st.dataframe(my_dataframe)
 
-    #print("Variables types")
-    #print(my_dataframe.dtypes)
-
     s = (my_dataframe.dtypes == 'object')
     object_cols = list(s[s].index)
-
-    #print("Categorical variables:")
-    #print(object_cols)
 
     f = (my_dataframe.dtypes == 'float64')
     float_object_cols = list(f[f].index)
@@ -25,20 +20,8 @@ def loadInterface():
     n = (my_dataframe.dtypes == 'int64')
     numeric_object_cols = list(n[n].index) + float_object_cols
 
-    #print("Numerical Variable")
-    #print(numeric_object_cols)
-
-
-
-
-
-    #print("Float Variable")
-    #print(float_object_cols)
-
-    # cols_with_missing = [col for col in my_dataframe.columns if my_dataframe[col].isnull().any()]
-    # my_dataframe.drop(cols_with_missing, axis=1, inplace=True)
     column_names = my_dataframe.columns
-    #print(column_names)
+
     variable_numbers = len(my_dataframe.columns)
     active_coefficient = json_widget_saver['active_coefficient']
 
@@ -101,16 +84,19 @@ def loadInterface():
                 json_widget_saver['change_value_btn'] = "1"
                 json_widget_saver['scale_btn'] = ""
                 json_widget_saver['missing_value_btn'] = ""
+                saveWidgets()
         with btn2:
             if st.button("Scale"):
                 json_widget_saver['change_value_btn'] = ""
                 json_widget_saver['scale_btn'] = "1"
                 json_widget_saver['missing_value_btn'] = ""
+                saveWidgets()
         with btn3:
             if st.button("Missing Value Strategy"):
                 json_widget_saver['change_value_btn'] = ""
                 json_widget_saver['scale_btn'] = ""
                 json_widget_saver['missing_value_btn'] = "1"
+                saveWidgets()
 
         if json_widget_saver['change_value_btn'] == "1":
             h1, h2, h3, h4 = st.columns((1, 1, 1, 1))
@@ -130,6 +116,7 @@ def loadInterface():
         if json_widget_saver['scale_btn'] == "1":
             scaler = st.slider("", min_value=-10, max_value=10, value=0, step=1)
             if st.button("Apply change"):
+                json_widget_saver['apply_scaler'] == "1"
                 float_value = float(10)
                 power_value = float_value ** scaler
                 my_dataframe[active_coefficient] = my_dataframe[active_coefficient].astype(float) * power_value
@@ -137,15 +124,18 @@ def loadInterface():
                 st.title(power_value)
                 dataFrameWidget.empty()
                 dataFrameWidget.dataframe(my_dataframe)
+                my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                saveWidgets()
 
-        #fig, ax = plt.subplots()
-        #ax.hist
 
-        #hist = my_dataframe[active_coefficient].hist()
-        arr = np.random.normal(1, 1, size=100)
-        fig, ax = plt.subplots()
-        ax.hist(my_dataframe[active_coefficient].to_numpy(), bins=20)
-        st.pyplot(fig)
+
+        _, histPlace, _ = st.columns((1, 1, 1))
+        with histPlace:
+            fig, ax = plt.subplots(edgecolor = 'black')
+            ax.hist(my_dataframe[active_coefficient].to_numpy(), bins=20, edgecolor = 'black')
+            ax.set_facecolor("gray")
+
+            st.pyplot(fig)
         # Space out the maps so the first one is 2x the size of the other three
         c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
         columns_array = [c1, c2, c3, c4]
