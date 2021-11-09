@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from functions import *
-from sklearn.model_selection import train_test_split
-
+from loadSidebar import loadSidebar
 
 def loadInterface():
 
@@ -13,17 +12,18 @@ def loadInterface():
 
     s = (my_dataframe.dtypes == 'object')
     object_cols = list(s[s].index)
-
     f = (my_dataframe.dtypes == 'float64')
     float_object_cols = list(f[f].index)
-
     n = (my_dataframe.dtypes == 'int64')
     numeric_object_cols = list(n[n].index) + float_object_cols
-
     column_names = my_dataframe.columns
-
     variable_numbers = len(my_dataframe.columns)
+    column_number = len(my_dataframe)
     active_coefficient = json_widget_saver['active_coefficient']
+
+####################################################
+#####################sidebar########################
+####################################################
 
     with st.sidebar:
         csv = convert_df(my_dataframe)
@@ -33,131 +33,84 @@ def loadInterface():
             file_name='my_df.csv',
             mime='text/csv', )
 
-
-        buttons = list()
-        buttons = st.columns(variable_numbers)
-        index = 0
-
         active_coefficient = st.selectbox(
             'Which coefficient would you like to analizing?',
             column_names)
         json_widget_saver['active_coefficient'] = active_coefficient
         saveWidgets()
 
-        value_to_predict = st.selectbox(
-            'Which coefficient would you like to predict?',
-            column_names)
-        #json_widget_saver['value_to_predict'] = value_to_predict
-        #saveWidgets()
+        if active_coefficient != "":
 
-        option_use_to_predict = st.multiselect(
-            'Which coefficient use to predict',
-            [i for i in numeric_object_cols],
-            [i for i in numeric_object_cols])
+            preprocessing = st.selectbox(
+                'Which coefficient would you like to analizing?',
+                ['Change Value', 'Scale','Resize Range', 'Missing Value Strategy', 'Normalization', 'Standarization'])
 
-        #st.write('You selected:', option_use_to_predict)
+            savePreprocesingButtons(preprocessing)
 
-        algorithm_model = st.selectbox(
-            'Which Machine Learning model use?',
-            ['1','2','3'])
-        #json_widget_saver['algorithm_model'] = value_to_predict
-        #saveWidgets()
+            if (preprocessing == 'Normalization'):
+                if st.button("Aplay Normalization"):
+                    my_dataframe[numeric_object_cols] = normalized(my_dataframe, numerical_cols=numeric_object_cols)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
+            if (preprocessing == 'Standarization'):
+                if st.button("Aplay Standarization"):
+                    my_dataframe[numeric_object_cols] = standarization(dataframe=my_dataframe,
+                                                                       numerical_cols=numeric_object_cols)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
 
-        st.button("Create Model")
-        st.button("Test Model")
+            if json_widget_saver['change_value_btn'] == "1":
 
-    column_number = len(my_dataframe)
+                my_dataframe = changeValueInColumn(my_dataframe, active_coefficient)
+                dataFrameWidget = refreshDataFrameWidget(dataFrameWidget, my_dataframe)
+            if json_widget_saver['scale_btn'] == "1":
 
+                my_dataframe = scaleColumn(my_dataframe, active_coefficient)
+                dataFrameWidget = refreshDataFrameWidget(dataFrameWidget,my_dataframe)
 
+            if json_widget_saver['resize_range_btn'] == "1":
 
-    # train_set = my_dataframe[0:column_number*0.8]
-    # test_set = my_dataframe[column_number*0.8+1:column_number*0.8]
-
-    X_train, X_valid, y_train, y_valid = train_test_split(my_dataframe[0:column_number], range(column_number),
-                                                          train_size=0.8, test_size=0.2, random_state=42)
-
-    if active_coefficient != "":
-        st.title("Active: "+active_coefficient)
-        btn1, btn2, btn3, btn4 = st.columns((1, 1, 1, 1))
-        with btn1:
-            if st.button("Change Value"):
-                json_widget_saver['change_value_btn'] = "1"
-                json_widget_saver['scale_btn'] = ""
-                json_widget_saver['missing_value_btn'] = ""
-                saveWidgets()
-        with btn2:
-            if st.button("Scale"):
-                json_widget_saver['change_value_btn'] = ""
-                json_widget_saver['scale_btn'] = "1"
-                json_widget_saver['missing_value_btn'] = ""
-                saveWidgets()
-        with btn3:
-            if st.button("Missing Value Strategy"):
-                json_widget_saver['change_value_btn'] = ""
-                json_widget_saver['scale_btn'] = ""
-                json_widget_saver['missing_value_btn'] = "1"
-                saveWidgets()
-
-        if json_widget_saver['change_value_btn'] == "1":
-            h1, h2, h3, h4 = st.columns((1, 1, 1, 1))
-            with h1:
-                ValueToChange = st.text_input('Value To Change')
-            with h2:
-                NewValue = st.text_input('New Value')
-            with h3:
-                DataType = st.radio("Type of data",('Int64', 'Float64', 'Boolean', 'String'))
-
-            if st.button("Apply"):
-                tempType = my_dataframe[active_coefficient].dtype
-                #print(tempType)
-                my_dataframe[active_coefficient] = changeValueInColumn(my_dataframe,active_coefficient,ValueToChange,NewValue,DataType)
-                dataFrameWidget.dataframe(my_dataframe)
-
-        if json_widget_saver['scale_btn'] == "1":
-            scaler = st.slider("", min_value=-10, max_value=10, value=0, step=1)
-            if st.button("Apply change"):
-                json_widget_saver['apply_scaler'] == "1"
-                float_value = float(10)
-                power_value = float_value ** scaler
-                my_dataframe[active_coefficient] = my_dataframe[active_coefficient].astype(float) * power_value
-                #print(my_dataframe[active_coefficient])
-                st.title(power_value)
-                dataFrameWidget.empty()
-                dataFrameWidget.dataframe(my_dataframe)
-                my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                saveWidgets()
+                my_dataframe = resizeColumn(my_dataframe,active_coefficient)
+                dataFrameWidget = refreshDataFrameWidget(dataFrameWidget,my_dataframe)
 
 
 
-        _, histPlace, _ = st.columns((1, 1, 1))
-        with histPlace:
-            fig, ax = plt.subplots(edgecolor = 'black')
-            ax.hist(my_dataframe[active_coefficient].to_numpy(), bins=20, edgecolor = 'black')
-            ax.set_facecolor("gray")
+########################################################
+#End of sidebar
 
-            st.pyplot(fig)
+    _, histPlace, _ = st.columns((1, 1, 1))
+    with histPlace:
+        fig, ax = plt.subplots(edgecolor = 'black')
+        ax.hist(my_dataframe[active_coefficient].to_numpy(), bins=20, edgecolor = 'black')
+        ax.set_facecolor("gray")
+
+        st.pyplot(fig)
         # Space out the maps so the first one is 2x the size of the other three
-        c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
-        columns_array = [c1, c2, c3, c4]
-        counter = 0
-        for coefficient in numeric_object_cols:
+    c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
+    columns_array = [c1, c2, c3, c4]
+    counter = 0
+    for coefficient in numeric_object_cols:
 
-            if counter == 1:
-                with c1:
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-            if counter == 2:
-                with c2:
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-            if counter == 3:
-                with c3:
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-            if counter == 4:
-                with c4:
-                    print_chart(my_dataframe, active_coefficient, coefficient)
+        if counter == 1:
+            with c1:
+                print_chart(my_dataframe, active_coefficient, coefficient)
+        if counter == 2:
+            with c2:
+                print_chart(my_dataframe, active_coefficient, coefficient)
+        if counter == 3:
+            with c3:
+                print_chart(my_dataframe, active_coefficient, coefficient)
+        if counter == 4:
+            with c4:
+                print_chart(my_dataframe, active_coefficient, coefficient)
 
-            counter += 1
-            if counter >= 5:
-                counter = 1
+        counter += 1
+        if counter >= 5:
+            counter = 1
 
     #download_csv(my_dataframe)
     # Use the full page instead of a narrow central column
@@ -168,4 +121,29 @@ def loadInterface():
         data=csv,
         file_name='my_df.csv',
         mime='text/csv', )
+
+    value_to_predict = st.selectbox(
+        'Which coefficient would you like to predict?',
+        column_names)
+    json_widget_saver['value_to_predict'] = value_to_predict
+    saveWidgets()
+
+    optionUseToPredict = [i for i in numeric_object_cols]
+    optionUseToPredict.remove(value_to_predict)
+
+    option_use_to_predict = st.multiselect(
+        'Which coefficient use to predict',
+        [i for i in numeric_object_cols],
+        optionUseToPredict)
+
+    algorithm_model = st.selectbox(
+        'Which Machine Learning model use?',
+        ['LinearRegression', 'RandomForestRegressor', '3'])
+
+    if st.button("Create Model"):
+        createModel(my_dataframe, option_use_to_predict, value_to_predict, algorithm_model)
+    if st.button("Test Model"):
+        testModel()
+
+
 

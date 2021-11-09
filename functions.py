@@ -4,6 +4,12 @@ import base64
 import numpy as np
 import pandas as pd
 import json
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 
 if __name__!="__main__":
     PWD = os.getcwd()
@@ -65,9 +71,13 @@ def resetWidgets():
     json_widget_saver['active_coefficient'] = ""
     json_widget_saver['change_value_btn'] = ""
     json_widget_saver['scale_btn'] = ""
+    json_widget_saver['resize_range_btn'] = ""
     json_widget_saver['missing_value_btn'] = ""
     json_widget_saver['apply_scaler'] = ""
     json_widget_saver['upload_file'] = ""
+    json_widget_saver['value_to_predict'] = ""
+
+
     with open("widget.json", "w") as outfile:
         json.dump(json_widget_saver, outfile)
     outfile.close()
@@ -79,10 +89,140 @@ def saveWidgets():
         json.dump(json_widget_saver, outfile)
     outfile.close()
 
-def changeValueInColumn(my_dataframe,active_coefficient,ValueToChange,NewValue,DataType):
+def savePreprocesingButtons(preprocessing):
+    if (preprocessing == 'Change Value'):
+        json_widget_saver['change_value_btn'] = "1"
+        json_widget_saver['scale_btn'] = ""
+        json_widget_saver['missing_value_btn'] = ""
+        json_widget_saver['resize_range_btn'] = ""
+        saveWidgets()
 
+    if (preprocessing == 'Resize Range'):
+        json_widget_saver['change_value_btn'] = ""
+        json_widget_saver['scale_btn'] = ""
+        json_widget_saver['missing_value_btn'] = ""
+        json_widget_saver['resize_range_btn'] = "1"
+        saveWidgets()
+
+    if (preprocessing == 'Scale'):
+        json_widget_saver['change_value_btn'] = ""
+        json_widget_saver['scale_btn'] = "1"
+        json_widget_saver['missing_value_btn'] = ""
+        json_widget_saver['resize_range_btn'] = ""
+        saveWidgets()
+    if (preprocessing == 'Missing Value Strategy'):
+        json_widget_saver['change_value_btn'] = ""
+        json_widget_saver['scale_btn'] = ""
+        json_widget_saver['missing_value_btn'] = "1"
+        json_widget_saver['resize_range_btn'] = ""
+        saveWidgets()
+
+def resizeColumn(my_dataframe,active_coefficient):
+
+    r_min = min(my_dataframe[active_coefficient])
+    r_max = max(my_dataframe[active_coefficient])
+
+    t_min = st.text_input('Minimal Value')
+    t_max = st.text_input('Maximum Value')
+    if st.button("Apply change"):
+        #json_widget_saver['apply_scaler_range'] == "1"
+        try:
+            t_min = float(t_min)
+            t_max = float(t_max)
+            my_dataframe[active_coefficient] = (my_dataframe[active_coefficient].astype(float) - r_min) / (
+                        r_max - r_min) * (t_max - t_min) + t_min
+        except ValueError:
+            print("wrong values")
+
+    return my_dataframe
+
+def scaleColumn(my_dataframe, active_coefficient):
+
+    scaler = st.slider("", min_value=-10, max_value=10, value=0, step=1)
+    if st.button("Apply change"):
+        float_value = float(10)
+        power_value = float_value ** scaler
+        my_dataframe[active_coefficient] = my_dataframe[active_coefficient].astype(float) * power_value
+    return my_dataframe
+
+def changeValueInColumn(my_dataframe,active_coefficient):
+
+    values = my_dataframe[active_coefficient].unique()
+    print(values)
+    h1, h2, h3, h4 = st.columns((1, 1, 1, 1))
+    with h1:
+        ValueToChange = st.text_input('Value To Change')
+    with h2:
+        NewValue = st.text_input('New Value')
+    with h3:
+        DataType = st.radio("Type of data", ('Int64', 'Float64', 'Boolean', 'String'))
+    if st.button("Apply"):
+        tempType = my_dataframe[active_coefficient].dtype
+        # print(tempType)
     my_dataframe[active_coefficient] = my_dataframe[active_coefficient].replace([ValueToChange], NewValue)
     #for i in my_dataframe[active_coefficient]:
 
     return my_dataframe
+
+def refreshDataFrameWidget(dataFrameWidget,my_dataframe):
+    dataFrameWidget.empty()
+    dataFrameWidget.dataframe(my_dataframe)
+    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+    saveWidgets()
+
+def testModel(model,trainX, validX, trainY, validY):
+
+    predictions = model.predict(validX)
+    lin_mse = mean_squared_error(predictions,validY)
+    st.title(lin_mse)
+    lin_rmse = np.sqrt(lin_mse)
+    st.title(lin_rmse)
+
+
+def createModel(my_dataframe,option_use_to_predict,active_coefficient,algorithm_model):
+    column_number = len(my_dataframe)
+    option_use_to_predict.append(active_coefficient)
+    df = my_dataframe[option_use_to_predict]
+
+
+    #trainX, validX, trainY, validY = train_test_split(df,df[active_coefficient], test_size=0.2, random_state=42)
+    finaltrainX, finaltestX, finaltrainY, finaltestY = train_test_split(df,df[active_coefficient], test_size=0.2, random_state=42)
+   # split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
+
+    #for train_index, test_index in split.split(df, df[active_coefficient]):
+     #   strat_train_set = df.loc[train_index]
+     #   strat_test_set = df.loc[test_index]
+
+   # print(strat_train_set[active_coefficient].value_counts() / len(strat_train_set))
+   # print(strat_test_set[active_coefficient].value_counts() / len(strat_test_set))
+
+    #finaltrainX = strat_train_set.drop(active_coefficient, axis=1)
+    #finaltrainY = strat_train_set[active_coefficient]
+
+    #finaltestX = strat_test_set.drop(active_coefficient, axis=1)
+    #finaltestY = strat_test_set[active_coefficient]
+
+
+    if algorithm_model == 'LinearRegression':
+        lin_reg = LinearRegression()
+        lin_reg.fit(finaltrainX, finaltrainY)
+        testModel(lin_reg, finaltrainX, finaltestX, finaltrainY, finaltestY)
+    elif algorithm_model == 'RandomForestRegressor':
+            forest_reg = RandomForestRegressor()
+            forest_reg.fit(finaltrainX, finaltrainY)
+            testModel(forest_reg, finaltrainX, finaltestX, finaltrainY, finaltestY)
+
+def normalized(dataframe,numerical_cols):
+    norm = MinMaxScaler().fit(dataframe[numerical_cols])
+    return pd.DataFrame( norm.transform(dataframe[numerical_cols]))
+
+def standarization(dataframe,numerical_cols):
+    train_stand = dataframe.copy()
+
+    for i in numerical_cols:
+        scale = StandardScaler().fit(train_stand[[i]])
+        train_stand[i] = scale.transform(train_stand[[i]])
+    return train_stand
+
+
 
