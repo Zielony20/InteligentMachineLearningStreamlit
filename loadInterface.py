@@ -97,7 +97,8 @@ def loadInterface():
         if counter == 1:
             with c1:
                 print_chart(my_dataframe, active_coefficient, coefficient)
-        if counter == 2:
+
+     0   if counter == 2:
             with c2:
                 print_chart(my_dataframe, active_coefficient, coefficient)
         if counter == 3:
