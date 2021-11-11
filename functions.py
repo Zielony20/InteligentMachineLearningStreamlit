@@ -177,6 +177,7 @@ def testModel(model,trainX, validX, trainY, validY):
     st.title(lin_mse)
     lin_rmse = np.sqrt(lin_mse)
     st.title(lin_rmse)
+    st.title(model.score(validX,validY))
 
 
 def createModel(my_dataframe,option_use_to_predict,active_coefficient,algorithm_model):

@@ -98,7 +98,7 @@ def loadInterface():
             with c1:
                 print_chart(my_dataframe, active_coefficient, coefficient)
 
-     0   if counter == 2:
+        if counter == 2:
             with c2:
                 print_chart(my_dataframe, active_coefficient, coefficient)
         if counter == 3:
@@ -124,7 +124,7 @@ def loadInterface():
 
     value_to_predict = st.selectbox(
         'Which coefficient would you like to predict?',
-        column_names)
+        numeric_object_cols)
     json_widget_saver['value_to_predict'] = value_to_predict
     saveWidgets()
 

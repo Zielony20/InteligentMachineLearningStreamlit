@@ -1,6 +1,7 @@
 pip uninstall streamlit -y
 pip install streamlit --upgrade --no-cache-dir
 pip install --upgrade protobuf
+export PATH="$HOME/.local/bin:$PATH"
 
 
 from bokeh.plotting import figure
