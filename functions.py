@@ -7,11 +7,14 @@ import json
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.cluster import KMeans
+from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 
-if __name__!="__main__":
+if __name__ != "__main__":
     PWD = os.getcwd()
     with open('widget.json', 'r') as openjson:
         json_widget_saver = json.load(openjson)
@@ -31,7 +34,8 @@ def convert_df(df):
      # IMPORTANT: Cache the conversion to prevent computation on every rerun
     return df.to_csv().encode('utf-8')
 
-
+def save_df_to_csv(df):
+    df = df.to_csv(PWD+'/data.csv')
 
 
 def save_uploadedfile(uploadedfile):
@@ -209,9 +213,19 @@ def createModel(my_dataframe,option_use_to_predict,active_coefficient,algorithm_
         lin_reg.fit(finaltrainX, finaltrainY)
         testModel(lin_reg, finaltrainX, finaltestX, finaltrainY, finaltestY)
     elif algorithm_model == 'RandomForestRegressor':
-            forest_reg = RandomForestRegressor()
-            forest_reg.fit(finaltrainX, finaltrainY)
-            testModel(forest_reg, finaltrainX, finaltestX, finaltrainY, finaltestY)
+        forest_reg = RandomForestRegressor()
+        forest_reg.fit(finaltrainX, finaltrainY)
+        testModel(forest_reg, finaltrainX, finaltestX, finaltrainY, finaltestY)
+    elif algorithm_model == "KNeighborsClassifier":
+        neigh = KNeighborsClassifier(n_neighbors=3)
+        neigh.fit(finaltrainX, finaltrainY)
+        testModel(neigh, finaltrainX, finaltestX, finaltrainY, finaltestY)
+    elif algorithm_model == "GaussianNB":
+        gnb = GaussianNB()
+        y_pred = gnb.fit(finaltrainX,finaltrainY)
+        testModel(gnb, finaltrainX, finaltestX, finaltrainY, finaltestY)
+    elif algorithm_model == "KMeans":
+        kmeans = KMeans(n_clusters=2, random_state=0).fit(finaltrainX)
 
 def normalized(dataframe,numerical_cols):
     norm = MinMaxScaler().fit(dataframe[numerical_cols])

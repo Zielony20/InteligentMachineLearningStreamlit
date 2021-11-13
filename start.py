@@ -1,24 +1,66 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import base64
-import matplotlib.pyplot as plt
 from functions import *
 from loadInterface import *
+from sklearn import datasets
 
 st.set_page_config(layout="wide")
 
+dataset_names = ['Own dataset', 'Iris plants dataset', 'Diabetes dataset', 'Optical recognition of handwritten digits dataset', 'Linnerrud dataset', 'Wine recognition dataset', 'Breast cancer wisconsin (diagnostic dataset)']
 
-upload_csv = st.file_uploader("put csv file", type='csv')
+sklearn_dataset = st.selectbox(
+        'Which dataset use?',
+        dataset_names)
 
-if (upload_csv is None):
+
+
+if sklearn_dataset == 'Own dataset':
+    example_dataset = False
+    upload_csv = st.file_uploader("put csv file", type='csv')
+elif sklearn_dataset in dataset_names:
+    example_dataset = True
+    upload_csv = None
+else:
+    example_dataset = False
+    upload_csv = None
+
+
+
+if (upload_csv is None and example_dataset == False):
     resetWidgets()
 
 if (json_widget_saver['upload_file'] == "1"):
     loadInterface()
 
-elif (upload_csv is not None):
+elif (upload_csv is not None and example_dataset == False ):
     save_uploadedfile(upload_csv)
     json_widget_saver['upload_file'] = "1"
     saveWidgets()
     loadInterface()
+
+elif example_dataset == True:
+
+    if sklearn_dataset == 'Iris plants dataset':
+        my_data = datasets.load_iris(return_X_y=False, as_frame=True)
+    elif sklearn_dataset == 'Diabetes dataset':
+        my_data = datasets.load_diabetes(return_X_y=False, as_frame=True)
+    elif sklearn_dataset == 'Optical recognition of handwritten digits dataset':
+        my_data = datasets.load_digits(return_X_y=False, as_frame=True)
+    elif sklearn_dataset == 'Wine recognition dataset':
+        my_data = datasets.load_wine(return_X_y=False, as_frame=True)
+    elif sklearn_dataset == 'Breast cancer wisconsin (diagnostic dataset)':
+        my_data = datasets.load_breast_cancer(return_X_y=False, as_frame=True)
+    elif sklearn_dataset == 'Linnerrud dataset':
+        my_data = datasets.load_linnerud(return_X_y=False, as_frame=True)
+
+    data = np.c_[my_data.data, my_data.target]
+    columns = np.append(my_data.feature_names, "target")
+    save_df_to_csv(pd.DataFrame(data, columns=columns))
+    json_widget_saver['upload_file'] = "1"
+    saveWidgets()
+    loadInterface()
+
+
 

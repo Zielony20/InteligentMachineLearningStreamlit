@@ -3,10 +3,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from functions import *
+from sklearn import datasets
 
 def loadInterface():
 
-    my_dataframe = pd.read_csv(PWD + '/data.csv')
+    my_dataframe = pd.read_csv(PWD + '/data.csv',index_col=False)
+    #if 'Unnamed: 0' in my_dataframe.columns:
+    #    my_dataframe.drop(['Unnamed: 0'], axis=1)
     dataFrameWidget = st.dataframe(my_dataframe)
 
     s = (my_dataframe.dtypes == 'object')
@@ -138,7 +141,7 @@ def loadInterface():
 
     algorithm_model = st.selectbox(
         'Which Machine Learning model use?',
-        ['LinearRegression', 'RandomForestRegressor', '3'])
+        ['LinearRegression', 'RandomForestRegressor', 'KNeighborsClassifier', 'GaussianNB', 'KMeans'])
 
     if st.button("Create Model"):
         createModel(my_dataframe, option_use_to_predict, value_to_predict, algorithm_model)
