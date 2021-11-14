@@ -80,7 +80,7 @@ def resetWidgets():
     json_widget_saver['apply_scaler'] = ""
     json_widget_saver['upload_file'] = ""
     json_widget_saver['value_to_predict'] = ""
-
+    json_widget_saver['base_dataset'] = ""
 
     with open("widget.json", "w") as outfile:
         json.dump(json_widget_saver, outfile)
@@ -178,20 +178,20 @@ def testModel(model,trainX, validX, trainY, validY):
 
     predictions = model.predict(validX)
     lin_mse = mean_squared_error(predictions,validY)
-    st.title(lin_mse)
+    st.title("MSE: "+str(lin_mse))
     lin_rmse = np.sqrt(lin_mse)
-    st.title(lin_rmse)
-    st.title(model.score(validX,validY))
+    st.title("RMSE: "+str(lin_rmse))
+    st.title('Model Score: '+str(model.score(validX, validY)*100)+"%")
+    #st.title(model.predict(np.array([[0.0381,0.0507]])))
 
-
-def createModel(my_dataframe,option_use_to_predict,active_coefficient,algorithm_model):
+def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_model):
     column_number = len(my_dataframe)
-    option_use_to_predict.append(active_coefficient)
+    #option_use_to_predict.append(value_to_predict)
     df = my_dataframe[option_use_to_predict]
 
 
     #trainX, validX, trainY, validY = train_test_split(df,df[active_coefficient], test_size=0.2, random_state=42)
-    finaltrainX, finaltestX, finaltrainY, finaltestY = train_test_split(df,df[active_coefficient], test_size=0.2, random_state=42)
+    finaltrainX, finaltestX, finaltrainY, finaltestY = train_test_split(df[option_use_to_predict],my_dataframe[value_to_predict], test_size=0.2, random_state=42)
    # split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
 
     #for train_index, test_index in split.split(df, df[active_coefficient]):

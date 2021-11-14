@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
+import scipy.stats as sps
 from functions import *
 from sklearn import datasets
 
@@ -44,7 +46,7 @@ def loadInterface():
         if active_coefficient != "":
 
             preprocessing = st.selectbox(
-                'Which coefficient would you like to analizing?',
+                'Choose preprocessing operation',
                 ['Change Value', 'Scale','Resize Range', 'Missing Value Strategy', 'Normalization', 'Standarization'])
 
             savePreprocesingButtons(preprocessing)
@@ -86,9 +88,15 @@ def loadInterface():
 
     _, histPlace, _ = st.columns((1, 1, 1))
     with histPlace:
-        fig, ax = plt.subplots(edgecolor = 'black')
-        ax.hist(my_dataframe[active_coefficient].to_numpy(), bins=20, edgecolor = 'black')
+        fig, ax = plt.subplots(edgecolor='black')
+        mdf = my_dataframe[active_coefficient].to_numpy()
+        n,bins,_ = ax.hist(mdf, bins=20, edgecolor='black',alpha=0.4)
         ax.set_facecolor("gray")
+        mn = mdf.min()
+        mx = mdf.max()
+        plt.xlim(mn, mx)
+        x = np.linspace(mn, mx, 20)
+        ax.plot(x, sps.uniform.pdf(x), color='C1')
 
         st.pyplot(fig)
         # Space out the maps so the first one is 2x the size of the other three
@@ -145,8 +153,7 @@ def loadInterface():
 
     if st.button("Create Model"):
         createModel(my_dataframe, option_use_to_predict, value_to_predict, algorithm_model)
-    if st.button("Test Model"):
-        testModel()
+
 
 
 
