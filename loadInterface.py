@@ -6,10 +6,12 @@ import seaborn as sns
 import scipy.stats as sps
 from functions import *
 from sklearn import datasets
+import plotly.figure_factory as ff
+import plotly.express as px
 
 def loadInterface():
 
-    my_dataframe = pd.read_csv(PWD + '/data.csv',index_col=False)
+    my_dataframe = pd.read_csv(PWD + '/data.csv',index_col=None)
     #if 'Unnamed: 0' in my_dataframe.columns:
     #    my_dataframe.drop(['Unnamed: 0'], axis=1)
     dataFrameWidget = st.dataframe(my_dataframe)
@@ -39,7 +41,7 @@ def loadInterface():
 
         active_coefficient = st.selectbox(
             'Which coefficient would you like to analizing?',
-            column_names)
+            numeric_object_cols)
         json_widget_saver['active_coefficient'] = active_coefficient
         saveWidgets()
 
@@ -52,25 +54,59 @@ def loadInterface():
             savePreprocesingButtons(preprocessing)
 
             if (preprocessing == 'Normalization'):
-                if st.button("Aplay Normalization"):
-                    my_dataframe[numeric_object_cols] = normalized(my_dataframe, numerical_cols=numeric_object_cols)
+                if st.button("Aplay normalization"):
+                    my_dataframe[active_coefficient] = normalized(my_dataframe, active_coefficient)
                     dataFrameWidget.empty()
                     dataFrameWidget.dataframe(my_dataframe)
                     my_dataframe.to_csv(PWD + '/data.csv', index=False)
                     saveWidgets()
+
+                if st.button("Aplay normalization on all columns"):
+                    my_dataframe[numeric_object_cols] = normalizedAll(my_dataframe, numerical_cols=numeric_object_cols)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
+
             if (preprocessing == 'Standarization'):
-                if st.button("Aplay Standarization"):
-                    my_dataframe[numeric_object_cols] = standarization(dataframe=my_dataframe,
+                if st.button("Aplay standarization"):
+                    my_dataframe[active_coefficient] = standarization(dataframe=my_dataframe, active_coefficient=active_coefficient)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
+                if st.button("Aplay standarization on all columns"):
+                    my_dataframe[numeric_object_cols] = standarizationAll(dataframe=my_dataframe,
                                                                        numerical_cols=numeric_object_cols)
                     dataFrameWidget.empty()
                     dataFrameWidget.dataframe(my_dataframe)
                     my_dataframe.to_csv(PWD + '/data.csv', index=False)
                     saveWidgets()
 
-            if json_widget_saver['change_value_btn'] == "1":
 
-                my_dataframe = changeValueInColumn(my_dataframe, active_coefficient)
-                dataFrameWidget = refreshDataFrameWidget(dataFrameWidget, my_dataframe)
+            if json_widget_saver['missing_value_btn']:
+                if st.button("Delete column"):
+                    if st.button("Are sure? This operation cannot be undone"):
+                        my_dataframe.dropna(subset=[active_coefficient])
+                        json_widget_saver['']
+                        dataFrameWidget.empty()
+                        dataFrameWidget.dataframe(my_dataframe)
+                        my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                        saveWidgets()
+                if st.button("Delete rows"):
+                    if st.button("Are sure? This operation cannot be undone"):
+                        my_dataframe.drop(active_coefficient, axis=1)
+                        dataFrameWidget.empty()
+                        dataFrameWidget.dataframe(my_dataframe)
+                        my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                        saveWidgets()
+                if st.button("Replace missing value with..."):
+                    st.title("NotImplemented")
+
+            if json_widget_saver['change_value_btn'] == "1":
+                pass
+            #    my_dataframe = changeValueInColumn(my_dataframe, active_coefficient)
+             #   dataFrameWidget = refreshDataFrameWidget(dataFrameWidget, my_dataframe)
             if json_widget_saver['scale_btn'] == "1":
 
                 my_dataframe = scaleColumn(my_dataframe, active_coefficient)
@@ -86,19 +122,27 @@ def loadInterface():
 ########################################################
 #End of sidebar
 
-    _, histPlace, _ = st.columns((1, 1, 1))
+    kolmogorov, histPlace, _ = st.columns((1, 4, 1))
     with histPlace:
-        fig, ax = plt.subplots(edgecolor='black')
-        mdf = my_dataframe[active_coefficient].to_numpy()
-        n,bins,_ = ax.hist(mdf, bins=20, edgecolor='black',alpha=0.4)
-        ax.set_facecolor("gray")
-        mn = mdf.min()
-        mx = mdf.max()
-        plt.xlim(mn, mx)
-        x = np.linspace(mn, mx, 20)
-        ax.plot(x, sps.uniform.pdf(x), color='C1')
+        int_val = [.01] #st.number_input('hist bins', value=1, step=1,format="%.2f")
+        group_labels = [active_coefficient]
+        hist_data = [my_dataframe[active_coefficient].to_numpy()]
+        # Create distplot with custom bin_size
+#        fig = ff.create_distplot(
+ #           hist_data, group_labels, bin_size=int_val, histnorm="probability density")
+        # Plot!
+  #      st.plotly_chart(fig, use_container_width=True)
 
-        st.pyplot(fig)
+        fig = px.histogram(my_dataframe[active_coefficient], x=active_coefficient,facet_col_spacing=1,marginal="violin",histnorm=None,barmode="overlay")
+        st.plotly_chart(fig, use_container_width=True)
+
+        with kolmogorov:
+
+            st.text('\n')
+            st.text('\n')
+            st.text('\n')
+            histSimilarity(my_dataframe[active_coefficient].to_numpy())
+
         # Space out the maps so the first one is 2x the size of the other three
     c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
     columns_array = [c1, c2, c3, c4]
@@ -149,11 +193,14 @@ def loadInterface():
 
     algorithm_model = st.selectbox(
         'Which Machine Learning model use?',
-        ['LinearRegression', 'RandomForestRegressor', 'KNeighborsClassifier', 'GaussianNB', 'KMeans'])
-
+        ['LinearRegression', 'DecisionTree','RandomForestRegressor', 'KNeighborsClassifier', 'GaussianNB', 'KMeans'])
+    metrics = st.multiselect(
+        "Which metrics show?",
+        ['MAE', 'MSE', 'RMSE', 'RMSLE', 'R squared'],
+        []
+    )
     if st.button("Create Model"):
-        createModel(my_dataframe, option_use_to_predict, value_to_predict, algorithm_model)
-
+        createModel(my_dataframe, option_use_to_predict, value_to_predict, algorithm_model, metrics)
 
 
 

@@ -3,9 +3,10 @@ import pandas as pd
 import numpy as np
 import base64
 from functions import *
-from loadInterface import *
+from loadInterface import loadInterface
 from sklearn import datasets
 
+print("??")
 st.set_page_config(layout="wide")
 
 dataset_names = ['Own dataset', 'Iris plants dataset', 'Diabetes dataset', 'Optical recognition of handwritten digits dataset', 'Wine recognition dataset', 'Breast cancer wisconsin (diagnostic dataset)']

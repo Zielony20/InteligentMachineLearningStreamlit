@@ -1,1 +1,1 @@
-{"upload_file": "1", "base_dataset": "", "active_coefficient": "Price", "change_value_btn": "1", "scale_btn": "", "missing_value_btn": "", "resize_range_btn": "", "apply_scaler": "", "value_to_predict": "DorM"}
+{"upload_file": "1", "base_dataset": "", "active_coefficient": "Cores", "change_value_btn": "1", "scale_btn": "", "missing_value_btn": "", "resize_range_btn": "", "apply_scaler": "", "value_to_predict": "DorM"}
