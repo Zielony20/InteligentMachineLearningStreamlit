@@ -27,6 +27,8 @@ def loadInterface():
     column_number = len(my_dataframe)
     active_coefficient = json_widget_saver['active_coefficient']
 
+
+
 ####################################################
 #####################sidebar########################
 ####################################################
@@ -49,10 +51,47 @@ def loadInterface():
 
             preprocessing = st.selectbox(
                 'Choose preprocessing operation',
-                ['Change Value', 'Scale','Resize Range', 'Missing Value Strategy', 'Normalization', 'Standarization'])
+                ['Create New Column' ,'Scale','Resize Range', 'Missing Value Strategy',
+                 'Normalization', 'Standarization', 'Quantile Transformer',
+                 'Robust Scaler', 'Power Transformer'])
 
-            savePreprocesingButtons(preprocessing)
+            #savePreprocesingButtons(preprocessing)
 
+            if (preprocessing == 'Create New Column'):
+
+                column_name = st.text_input("column name")
+                operation = st.selectbox('choose operation',
+                                         ['Duplicate','Addition','Multiplication','Raise to power'])
+                my_dataframe = CreateNewColumn(my_dataframe,active_coefficient,column_name,operation,numeric_object_cols)
+                dataFrameWidget.empty()
+                dataFrameWidget.dataframe(my_dataframe)
+                my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                saveWidgets()
+            if (preprocessing == 'Power Transformer'):
+                method = st.selectbox('method',['yoe-johnson','box-cox'])
+                if (st.button("Aplay Power Transformer")):
+                    my_dataframe = MyPowerTransformer(my_dataframe, active_coefficient, method)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
+            if (preprocessing == 'Robust Scaler'):
+                if(st.button("Aplay Robust Scaler")):
+                    my_dataframe = MyRobustScaler(my_dataframe, active_coefficient)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
+            if (preprocessing == 'Quantile Transformer'):
+                distribution = st.selectbox('distribution',
+                                            ['uniform','normal'])
+                n_quantiles = st.slider("n_quantiles", min_value=0, max_value=100, value=5, step=1)
+                if (st.button("Aplay Quantile Transformer" )):
+                    my_dataframe = MyQuantileTransformer(my_dataframe,active_coefficient,distribution,n_quantiles)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
             if (preprocessing == 'Normalization'):
                 if st.button("Aplay normalization"):
                     my_dataframe[active_coefficient] = normalized(my_dataframe, active_coefficient)
@@ -84,7 +123,9 @@ def loadInterface():
                     saveWidgets()
 
 
-            if json_widget_saver['missing_value_btn']:
+#            'Scale', 'Resize Range', 'Missing Value Strategy'
+
+            if preprocessing == 'Missing Value Strategy':
                 if st.button("Delete column"):
                     if st.button("Are sure? This operation cannot be undone"):
                         my_dataframe.dropna(subset=[active_coefficient])
@@ -103,22 +144,19 @@ def loadInterface():
                 if st.button("Replace missing value with..."):
                     st.title("NotImplemented")
 
-            if json_widget_saver['change_value_btn'] == "1":
-                pass
-            #    my_dataframe = changeValueInColumn(my_dataframe, active_coefficient)
-             #   dataFrameWidget = refreshDataFrameWidget(dataFrameWidget, my_dataframe)
-            if json_widget_saver['scale_btn'] == "1":
-
+            if preprocessing == 'Scale':
                 my_dataframe = scaleColumn(my_dataframe, active_coefficient)
-                dataFrameWidget = refreshDataFrameWidget(dataFrameWidget,my_dataframe)
-
-            if json_widget_saver['resize_range_btn'] == "1":
-
-                my_dataframe = resizeColumn(my_dataframe,active_coefficient)
-                dataFrameWidget = refreshDataFrameWidget(dataFrameWidget,my_dataframe)
-
-
-
+                #dataFrameWidget = refreshDataFrameWidget(dataFrameWidget, my_dataframe)
+                dataFrameWidget.empty()
+                dataFrameWidget.dataframe(my_dataframe)
+                my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                saveWidgets()
+            if preprocessing == 'Resize Range':
+                my_dataframe = resizeColumn(my_dataframe, active_coefficient)
+                dataFrameWidget.empty()
+                dataFrameWidget.dataframe(my_dataframe)
+                my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                saveWidgets()
 ########################################################
 #End of sidebar
 

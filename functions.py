@@ -13,7 +13,7 @@ from sklearn.cluster import KMeans
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
-from sklearn.preprocessing import MinMaxScaler,StandardScaler ,OneHotEncoder
+from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, Normalizer, PowerTransformer
 
 if __name__ != "__main__":
     PWD = os.getcwd()
@@ -315,6 +315,70 @@ def standarization(dataframe,active_coefficient):
     scale = StandardScaler().fit(dataframe[[active_coefficient]])
     dataframe[active_coefficient] = scale.transform(dataframe[[active_coefficient]])
     return dataframe[active_coefficient]
+
+def MyQuantileTransformer(dataframe,column,distribution="uniform",n_quantiles=6):
+
+    qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, output_distribution=distribution)
+    X = dataframe[column].to_numpy().reshape(-1,1)
+    result = qt.fit_transform(X)
+    dataframe[column] = result
+    return dataframe
+
+
+def MyRobustScaler(dataframe,column):
+
+    X = dataframe[column].to_numpy().reshape(-1,1)
+    rs = RobustScaler().fit_transform(X)
+    dataframe[column] = rs
+    return dataframe
+
+def MyPowerTransformer(dataframe,column,method="yoe-johnson"):
+
+    X = dataframe[column].to_numpy().reshape(-1, 1)
+    pt = PowerTransformer(method=method).fit_transform(X)
+    dataframe[column] = pt
+    return dataframe
+
+def MyNormalizer(dataframe,column):
+    return dataframe
+
+def MyStandardScaler(dataframe,column):
+    return dataframe
+
+def MyMinMaxScaler(dataframe,column):
+    return dataframe
+
+
+def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',numeric_object_cols=""):
+
+    if (operation == 'Duplicate'):
+        if st.button("Aplay duplication"):
+            dataframe[column_name] = dataframe[column]
+    if (operation == 'Addition'):
+        cols = st.multiselect("choose columns to add", numeric_object_cols,[])
+        dataframe[column_name] = 0
+        if(st.button("Aplay addition")):
+            for c in cols:
+                dataframe[column_name] = dataframe[column_name] + dataframe[c]
+
+    if (operation == 'Multiplication'):
+        cols = st.multiselect("choose columns to add", numeric_object_cols, [])
+
+        if st.button("Aplay multiplication"):
+            dataframe[column_name] = 1
+            for c in cols:
+                dataframe[column_name] = dataframe[column_name] * dataframe[c]
+
+    if (operation == 'Raise to power'):
+        power = st.slider("Power", min_value=-9, max_value=9, value=1, step=1)
+
+        if st.button("Aplay exponentiation"):
+            dataframe[column_name] = np.power(dataframe[column],power)
+
+
+    return dataframe
+
+
 
 
 #https://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing

@@ -20,6 +20,41 @@ p.toolbar.active_drag = draw_tool
 
 st.bokeh_chart(p)
 
+pip freeze
 
 
+'''
+            if json_widget_saver['missing_value_btn']:
+                if st.button("Delete column"):
+                    if st.button("Are sure? This operation cannot be undone"):
+                        my_dataframe.dropna(subset=[active_coefficient])
+                        json_widget_saver['']
+                        dataFrameWidget.empty()
+                        dataFrameWidget.dataframe(my_dataframe)
+                        my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                        saveWidgets()
+                if st.button("Delete rows"):
+                    if st.button("Are sure? This operation cannot be undone"):
+                        my_dataframe.drop(active_coefficient, axis=1)
+                        dataFrameWidget.empty()
+                        dataFrameWidget.dataframe(my_dataframe)
+                        my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                        saveWidgets()
+                if st.button("Replace missing value with..."):
+                    st.title("NotImplemented")
 
+            if json_widget_saver['change_value_btn'] == "1":
+                pass
+            #    my_dataframe = changeValueInColumn(my_dataframe, active_coefficient)
+             #   dataFrameWidget = refreshDataFrameWidget(dataFrameWidget, my_dataframe)
+            if json_widget_saver['scale_btn'] == "1":
+
+                my_dataframe = scaleColumn(my_dataframe, active_coefficient)
+                dataFrameWidget = refreshDataFrameWidget(dataFrameWidget,my_dataframe)
+
+            if json_widget_saver['resize_range_btn'] == "1":
+
+                my_dataframe = resizeColumn(my_dataframe,active_coefficient)
+                dataFrameWidget = refreshDataFrameWidget(dataFrameWidget,my_dataframe)
+
+'''
