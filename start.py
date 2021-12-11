@@ -1,16 +1,11 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import base64
-from functions import *
+from Functions.FilesystemFunctions import save_uploadedfile
+from Functions.JsonHandler import *
 from loadInterface import loadInterface
 from sklearn import datasets
 
-
 st.set_page_config(layout="wide")
-
 dataset_names = ['Own dataset', 'Iris plants dataset', 'Diabetes dataset', 'Optical recognition of handwritten digits dataset', 'Wine recognition dataset', 'Breast cancer wisconsin (diagnostic dataset)']
-
 sklearn_dataset = st.selectbox(
         'Which dataset use?',
         dataset_names)
@@ -27,7 +22,6 @@ else:
     example_dataset = False
     upload_csv = None
 
-
 if (upload_csv is None and example_dataset == False):
     resetWidgets()
 
@@ -35,6 +29,7 @@ if (json_widget_saver['upload_file'] == "1"):
     loadInterface()
 
 elif (upload_csv is not None and example_dataset == False ):
+
     save_uploadedfile(upload_csv)
     json_widget_saver['upload_file'] = "1"
     saveWidgets()
