@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import os
 import base64
 
@@ -17,7 +18,7 @@ def convert_df(df):
     return df.to_csv().encode('utf-8')
 
 def save_df_to_csv(df):
-    df = df.to_csv(PWD+'/data.csv', index=False)
+    df.to_csv(PWD+'/data.csv', index=False)
 
 
 def save_uploadedfile(uploadedfile):

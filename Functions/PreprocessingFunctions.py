@@ -35,7 +35,6 @@ def scaleColumn(my_dataframe, active_coefficient):
 def changeValueInColumn(my_dataframe,active_coefficient):
 
     values = my_dataframe[active_coefficient].unique()
-    print(values)
     h1, h2, h3, h4 = st.columns((1, 1, 1, 1))
     with h1:
         ValueToChange = st.text_input('Value To Change')
@@ -45,13 +44,30 @@ def changeValueInColumn(my_dataframe,active_coefficient):
         DataType = st.radio("Type of data", ('Int64', 'Float64', 'Boolean', 'String'))
     if st.button("Apply"):
         tempType = my_dataframe[active_coefficient].dtype
-        # print(tempType)
     my_dataframe[active_coefficient] = my_dataframe[active_coefficient].replace([ValueToChange], NewValue)
     #for i in my_dataframe[active_coefficient]:
 
     return my_dataframe
 
-def missingValueToChange(my_dataframe,active_coefficient):
+def missingValueToChange(my_dataframe,active_coefficient,strategy):
+    if strategy == "median":
+        median = my_dataframe[active_coefficient].median()
+        my_dataframe[active_coefficient] = my_dataframe[active_coefficient].fillna(median, inplace=True)
+    if strategy == "average":
+        average = my_dataframe[active_coefficient].average()
+        my_dataframe[active_coefficient] = my_dataframe[active_coefficient].fillna(average, inplace=True)
+    return my_dataframe
+
+def dropColumn(my_dataframe,active_coefficient,float_object_cols):
+    my_dataframe = my_dataframe.drop(active_coefficient, axis=1)
+    numeric = list(float_object_cols)
+    if (active_coefficient in numeric):
+        numeric.remove(active_coefficient)
+    active_coefficient = str(numeric[0])
+    return my_dataframe, active_coefficient, numeric
+
+def dropRows(my_dataframe,active_coefficient):
+    my_dataframe = my_dataframe.dropna(axis=0, how='any', thresh=None, subset=[active_coefficient], inplace=False)
     return my_dataframe
 
 def normalizedAll(dataframe,numerical_cols):
@@ -62,9 +78,7 @@ def normalized(dataframe,active_coefficient):
 
     norm = MinMaxScaler().fit(dataframe[[active_coefficient]])
     #dataframe[active_coefficient] = norm.transform(dataframe[active_coefficient])
-
     return pd.DataFrame( norm.transform(dataframe[[active_coefficient]]))
-
 
 def standarizationAll(dataframe,numerical_cols):
     train_stand = dataframe[numerical_cols].copy()

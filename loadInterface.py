@@ -3,7 +3,7 @@ from Functions.FilesystemFunctions import *
 from Functions.JsonHandler import *
 from Functions.ChartsFunctions import *
 from Functions.PreprocessingFunctions import *
-
+import time
 def loadInterface():
 
     my_dataframe = pd.read_csv(PWD + '/data.csv',index_col=None)
@@ -18,7 +18,6 @@ def loadInterface():
     variable_numbers = len(my_dataframe.columns)
     column_number = len(my_dataframe)
     active_coefficient = json_widget_saver['active_coefficient']
-
 ####################################################
 #####################sidebar########################
 ####################################################
@@ -36,12 +35,11 @@ def loadInterface():
             numeric_object_cols)
         json_widget_saver['active_coefficient'] = active_coefficient
         saveWidgets()
-
         if active_coefficient != "":
 
             preprocessing = st.selectbox(
                 'Choose preprocessing operation',
-                ['Create New Column' ,'Scale','Resize Range', 'Missing Value Strategy',
+                ['Create New Column' ,'Scale','Resize Range','Delete column', 'Missing Value Strategy',
                  'Normalization', 'Standarization', 'Quantile Transformer',
                  'Robust Scaler', 'Power Transformer'])
 
@@ -116,25 +114,44 @@ def loadInterface():
 
 
 #            'Scale', 'Resize Range', 'Missing Value Strategy'
+            if preprocessing == 'Delete column':
+                if st.button("Delete column"):
+                    my_dataframe, active_coefficient, numeric_object_cols = dropColumn(my_dataframe,active_coefficient,numeric_object_cols)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    json_widget_saver['active_coefficient'] = active_coefficient
+                    saveWidgets()
 
             if preprocessing == 'Missing Value Strategy':
                 if st.button("Delete column"):
-                    if st.button("Are sure? This operation cannot be undone"):
-                        my_dataframe.dropna(subset=[active_coefficient])
-                        json_widget_saver['']
-                        dataFrameWidget.empty()
-                        dataFrameWidget.dataframe(my_dataframe)
-                        my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                        saveWidgets()
+                    my_dataframe, active_coefficient, numeric_object_cols = dropColumn(my_dataframe,active_coefficient,numeric_object_cols)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    json_widget_saver['active_coefficient'] = active_coefficient
+                    saveWidgets()
+
+
                 if st.button("Delete rows"):
-                    if st.button("Are sure? This operation cannot be undone"):
-                        my_dataframe.drop(active_coefficient, axis=1)
+                    my_dataframe = dropRows(my_dataframe,active_coefficient)
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
+                if st.button("Replace missing value with..."):
+                    if st.button("median"):
+                        my_dataframe = missingValueToChange(my_dataframe, active_coefficient, "median")
                         dataFrameWidget.empty()
                         dataFrameWidget.dataframe(my_dataframe)
                         my_dataframe.to_csv(PWD + '/data.csv', index=False)
                         saveWidgets()
-                if st.button("Replace missing value with..."):
-                    st.title("NotImplemented")
+                    if st.button("average"):
+                        my_dataframe = missingValueToChange(my_dataframe, active_coefficient, "average")
+                        dataFrameWidget.empty()
+                        dataFrameWidget.dataframe(my_dataframe)
+                        my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                        saveWidgets()
 
             if preprocessing == 'Scale':
                 my_dataframe = scaleColumn(my_dataframe, active_coefficient)
@@ -151,8 +168,10 @@ def loadInterface():
                 saveWidgets()
 
 #End of sidebar
-
-
+    _,title,_ = st.columns((1,1,1))
+    with title:
+        #st.title(active_coefficient)
+        st.markdown("<h1 style='text-align: center; color: White;'> %s </h1>"%active_coefficient, unsafe_allow_html=True)
     histogramWithKomogorov(active_coefficient,my_dataframe)
     comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols)
 
@@ -169,8 +188,10 @@ def loadInterface():
     json_widget_saver['value_to_predict'] = value_to_predict
     saveWidgets()
 
+
     optionUseToPredict = [i for i in numeric_object_cols]
     optionUseToPredict.remove(value_to_predict)
+
 
     option_use_to_predict = st.multiselect(
         'Which coefficient use to predict',

@@ -1,11 +1,13 @@
 import streamlit as st
-from Functions.FilesystemFunctions import save_uploadedfile
+from Functions.FilesystemFunctions import save_uploadedfile, save_df_to_csv
 from Functions.JsonHandler import *
 from loadInterface import loadInterface
 from sklearn import datasets
+import numpy as np
+import pandas as pd
 
 st.set_page_config(layout="wide")
-dataset_names = ['Own dataset', 'Iris plants dataset', 'Diabetes dataset', 'Optical recognition of handwritten digits dataset', 'Wine recognition dataset', 'Breast cancer wisconsin (diagnostic dataset)']
+dataset_names = ['Own dataset', 'Iris plants dataset', 'Diabetes dataset', 'Wine recognition dataset', 'Breast cancer wisconsin (diagnostic dataset)']
 sklearn_dataset = st.selectbox(
         'Which dataset use?',
         dataset_names)
@@ -41,8 +43,6 @@ elif example_dataset == True:
         my_data = datasets.load_iris(return_X_y=False, as_frame=True)
     elif sklearn_dataset == 'Diabetes dataset':
         my_data = datasets.load_diabetes(return_X_y=False, as_frame=True)
-    elif sklearn_dataset == 'Optical recognition of handwritten digits dataset':
-        my_data = datasets.load_digits(return_X_y=False, as_frame=True)
     elif sklearn_dataset == 'Wine recognition dataset':
         my_data = datasets.load_wine(return_X_y=False, as_frame=True)
     elif sklearn_dataset == 'Breast cancer wisconsin (diagnostic dataset)':
