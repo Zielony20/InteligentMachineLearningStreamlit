@@ -2,3 +2,5 @@ __pycache__
 data.csv
 venv
 .idea
+notatki
+dataframeGenerator.py

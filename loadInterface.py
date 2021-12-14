@@ -43,7 +43,7 @@ def loadInterface():
                  'Normalization', 'Standarization', 'Quantile Transformer',
                  'Robust Scaler', 'Power Transformer'])
 
-            #savePreprocesingButtons(preprocessing)
+            
 
             if (preprocessing == 'Create New Column'):
 
