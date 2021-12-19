@@ -1,5 +1,5 @@
 import streamlit as st
-from Functions.FilesystemFunctions import save_uploadedfile, save_df_to_csv
+from Functions.FileSystemFunctions import save_uploadedfile, save_df_to_csv
 from Functions.JsonHandler import *
 from loadInterface import loadInterface
 from sklearn import datasets
@@ -15,7 +15,7 @@ sklearn_dataset = st.selectbox(
 if sklearn_dataset == 'Own dataset':
     example_dataset = False
     upload_csv = st.file_uploader("put csv file", type='csv')
-elif sklearn_dataset in dataset_names :
+elif sklearn_dataset in dataset_names:
     if sklearn_dataset != json_widget_saver['base_dataset'] and json_widget_saver['upload_file'] == "1":
         resetWidgets()
     example_dataset = True

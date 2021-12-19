@@ -28,14 +28,15 @@ def histSimilarity(function):
     s ,_ = sc.kstest(function, "norm")
     list["Normal"] = s
     s, _ = sc.kstest(function, "uniform")
-    list["Cauchy"] = s
+    list["Uniform"] = s
     s, _ = sc.kstest(function, "cauchy")
-    list["Expon"] = s
+    list["Cauchy"] = s
     s, _ = sc.kstest(function, "expon")
-    list["Laplace"] = s
+    list["Expon"] = s
     s, _ = sc.kstest(function, "laplace")
-    list["Rayleigh"] = s
+    list["Laplace"] = s
     s, _ = sc.kstest(function, "rayleigh")
+    list["Rayleigh"] = s
 
     dic = dict(sorted(list.items(),key= lambda x:x[1]))
 
@@ -96,4 +97,11 @@ def comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols):
         if counter >= 5:
             counter = 1
 
+def crossCharts(active_coefficient,my_dataframe,numeric_object_cols):
+    df = my_dataframe
+    fig = px.scatter_matrix(df, dimensions=[numeric_object_cols],
+                            color="Name")
+    st.plotly_chart(fig, use_container_width=True)
 
+# Zaimplementować to:
+# https://plotly.com/python/plotly-express/
