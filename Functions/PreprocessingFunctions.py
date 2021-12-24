@@ -4,11 +4,31 @@ import pandas as pd
 import scipy.stats as sc
 from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, Normalizer, PowerTransformer
 
+def getObjectsColumns(my_dataframe):
+    s = (my_dataframe.dtypes == 'object')
+    object_cols = list(s[s].index)
+    return object_cols
+
+def getNumericalColumns(my_dataframe):
+    f = (my_dataframe.dtypes == 'float64')
+    float_object_cols = list(f[f].index)
+    n = (my_dataframe.dtypes == 'int64')
+    numeric_object_cols = list(n[n].index) + float_object_cols
+    return numeric_object_cols
+
+def getClassificationColums(my_dataframe):
+    u = list(my_dataframe.nunique())
+    class_object_cols = []
+    for i in range(len(u)):
+        if u[i]<=6:
+            class_object_cols.append(my_dataframe.columns[i])
+        pass
+    return class_object_cols
+
 def resizeColumn(my_dataframe, active_coefficient):
 
     r_min = min(my_dataframe[active_coefficient])
     r_max = max(my_dataframe[active_coefficient])
-
     t_min = st.text_input('Minimal Value',value=r_min)
     t_max = st.text_input('Maximum Value',value=r_max)
     if st.button("Apply change"):
@@ -102,7 +122,6 @@ def MyQuantileTransformer(dataframe,column,distribution="uniform",n_quantiles=6)
     dataframe[column] = result
     return dataframe
 
-
 def MyRobustScaler(dataframe,column):
 
     X = dataframe[column].to_numpy().reshape(-1,1)
@@ -117,14 +136,14 @@ def MyPowerTransformer(dataframe,column,method="yeo-johnson"):
     dataframe[column] = pt
     return dataframe
 
-def MyNormalizer(dataframe,column):
-    return dataframe
+#def MyNormalizer(dataframe,column):
+#    return dataframe
 
-def MyStandardScaler(dataframe,column):
-    return dataframe
+#def MyStandardScaler(dataframe,column):
+#    return dataframe
 
-def MyMinMaxScaler(dataframe,column):
-    return dataframe
+#def MyMinMaxScaler(dataframe,column):
+#    return dataframe
 
 
 def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',numeric_object_cols=""):
@@ -162,3 +181,4 @@ def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',nu
 def encoder(dataframe,active_coefficient):
     pass
     #enc = OneHotEncoder().fit()
+

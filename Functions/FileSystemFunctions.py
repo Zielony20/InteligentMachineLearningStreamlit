@@ -27,7 +27,7 @@ def save_uploadedfile(uploadedfile):
     return st.success("Saved File:{} on Server".format(uploadedfile.name))
 
 def download_csv(df):
-    csv = df.to_csv().encode()
+    csv = convert_df(df) #df.to_csv().encode()
     b64 = base64.b64encode(csv).decode()
     bin_file="csv.csv"
     href = f'<a href="data:file/csv;base64,{b64}" download="{bin_file}">Download csv file</a>'

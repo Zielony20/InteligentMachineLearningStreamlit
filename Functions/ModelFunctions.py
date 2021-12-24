@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, cross_val_score
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression, SGDClassifier
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.cluster import KMeans
@@ -59,7 +59,7 @@ def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_mo
         with third:
             max_depth = st.selectbox("max_depth", [None, 1, 2, 3, 4, 5])
         if st.button("Create Model"):
-            forest_reg = RandomForestRegressor(riterion=criterion,max_depth=max_depth,min_samples_leaf=min_samples_leaf)
+            forest_reg = RandomForestRegressor(criterion=criterion,max_depth=max_depth,min_samples_leaf=min_samples_leaf)
             forest_reg.fit(finaltrainX, finaltrainY)
             testModel(forest_reg, finaltrainX, finaltestX, finaltrainY, finaltestY, metrics)
 
@@ -90,12 +90,21 @@ def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_mo
         if st.button("Create Model"):
             neigh = KNeighborsClassifier(n_neighbors=n_neighbors, weights=weights, algorithm=algorithm)
             neigh.fit(finaltrainX, finaltrainY)
-            testModel(neigh, finaltrainX, finaltestX, finaltrainY, finaltestY,metrics)
+            testModel(neigh, finaltrainX, finaltestX, finaltrainY, finaltestY, metrics)
+
+    elif algorithm_model == "SGDClassifier":
+        sgd = SGDClassifier().fit(finaltrainX, finaltrainY.astype('int'))
+        testModel(sgd, finaltrainX, finaltestX, finaltrainY.astype('int'), finaltestY.astype('int'), metrics)
+
+    elif algorithm_model == "LogisticRegression":
+        lr = LogisticRegression(random_state=42).fit(finaltrainX, finaltrainY.astype('int'))
+        testModel(lr, finaltrainX, finaltestX, finaltrainY.astype('int'), finaltestY.astype('int'), metrics)
 
     elif algorithm_model == "GaussianNB":
         gnb = GaussianNB()
         y_pred = gnb.fit(finaltrainX,finaltrainY)
-        testModel(gnb, finaltrainX, finaltestX, finaltrainY, finaltestY,metrics)
+        testModel(gnb, finaltrainX, finaltestX, finaltrainY, finaltestY, metrics)
     elif algorithm_model == "KMeans":
         kmeans = KMeans(n_clusters=2, random_state=0).fit(finaltrainX)
         testModel(kmeans, finaltrainX, finaltestX, finaltrainY, finaltestY, metrics)
+
