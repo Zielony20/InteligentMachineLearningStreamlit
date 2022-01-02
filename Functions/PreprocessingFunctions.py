@@ -147,36 +147,36 @@ def MyPowerTransformer(dataframe,column,method="yeo-johnson"):
 
 
 def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',numeric_object_cols=""):
-    aplay=False
+    apply=False
     if (operation == 'Duplicate'):
-        if st.button("Aplay duplication"):
+        if st.button("Apply duplication"):
             dataframe[column_name] = dataframe[column]
-            aplay = True
+            Apply = True
     if (operation == 'Addition'):
         cols = st.multiselect("choose columns to add", numeric_object_cols,[])
         dataframe[column_name] = 0
-        if(st.button("Aplay addition")):
+        if(st.button("Apply addition")):
             for c in cols:
                 dataframe[column_name] = dataframe[column_name] + dataframe[c]
-            aplay = True
+            apply = True
 
     if (operation == 'Multiplication'):
         cols = st.multiselect("choose columns to add", numeric_object_cols, [])
 
-        if st.button("Aplay multiplication"):
+        if st.button("Apply multiplication"):
             dataframe[column_name] = 1
             for c in cols:
                 dataframe[column_name] = dataframe[column_name] * dataframe[c]
-            aplay = True
+            apply = True
 
     if (operation == 'Raise to power'):
         power = st.slider("Power", min_value=0, max_value=9, value=1, step=1)
 
-        if st.button("Aplay exponentiation"):
+        if st.button("Apply exponentiation"):
             dataframe[column_name] = np.power(dataframe[column],power)
-            aplay = True
+            apply = True
 
-    return dataframe, aplay
+    return dataframe, apply
 
 def encoder(dataframe,active_coefficient):
     pass
