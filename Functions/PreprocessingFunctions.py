@@ -69,16 +69,23 @@ def changeValueInColumn(my_dataframe,active_coefficient):
 
     return my_dataframe
 
-def missingValueToChange(my_dataframe,active_coefficient,strategy):
+def missingValueToChange(my_dataframe : pd.DataFrame,active_coefficient,strategy):
+    #import numbers
+    nanList = ["<Nan>","<nan>"]
+    #my_dataframe = CreateNewColumn(my_dataframe, active_coefficient, column_name="Copy", operation='Duplicate')
+    #my_dataframe,_,_ = dropColumn(my_dataframe, active_coefficient)
+    #x = lambda a : np.nan if isinstance(a, numbers.Number) else np.nan
+    #my_dataframe.insert(0,active_coefficient,[ x(i) for i in my_dataframe["Copy"] ],True)
+    #my_dataframe, _, _ = dropColumn(my_dataframe, "Copy")
     if strategy == "median":
         median = my_dataframe[active_coefficient].median()
-        my_dataframe[active_coefficient] = my_dataframe[active_coefficient].fillna(median, inplace=True)
+        my_dataframe[active_coefficient] = my_dataframe[active_coefficient].fillna(0, inplace=True)
     if strategy == "average":
         average = my_dataframe[active_coefficient].average()
         my_dataframe[active_coefficient] = my_dataframe[active_coefficient].fillna(average, inplace=True)
     return my_dataframe
 
-def dropColumn(my_dataframe,active_coefficient,float_object_cols):
+def dropColumn(my_dataframe : pd.DataFrame,active_coefficient,float_object_cols=None):
     my_dataframe = my_dataframe.drop(active_coefficient, axis=1)
     numeric = list(float_object_cols)
     if (active_coefficient in numeric):

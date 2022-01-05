@@ -96,52 +96,55 @@ def histogramWithKomogorov(active_coefficient,my_dataframe):
             histSimilarity(my_dataframe[active_coefficient].to_numpy())
 
 
-def comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols):
+def chartsCoordinator(active_coefficient,my_dataframe,numeric_object_cols):
     targets = pf.getClassificationColums(my_dataframe)
 
-    if(len(numeric_object_cols)>8 and len(targets)>0):
-        c1,c2 = st.columns((5,1))
+    if (len(numeric_object_cols) > 8 and len(targets) > 0):
+        comparisonCharts(active_coefficient, my_dataframe, numeric_object_cols, [])
+        c1, c2 = st.columns((5, 1))
         with c2:
-            to_compere = st.selectbox("To compare",numeric_object_cols)
-            target = st.selectbox("Target",targets)
+            to_compere = st.selectbox("To compare", numeric_object_cols)
+            target = st.selectbox("Target", targets)
         with c1:
             print_chart2(my_dataframe, active_coefficient, to_compere, target)
     else:
         target = st.selectbox("Target", targets)
-        c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
-        columns_array = [c1, c2, c3, c4]
-        counter = 1
+        comparisonCharts(active_coefficient, my_dataframe, numeric_object_cols, targets)
 
-        for coefficient in numeric_object_cols:
-            if counter == 1:
-                with c1:
-                    if(len(targets)==0):
-                        print_chart(my_dataframe, active_coefficient, coefficient)
-                    else:
-                        print_chart2(my_dataframe, active_coefficient, coefficient, target)
-            if counter == 2:
-                with c2:
-                    if (len(targets)==0):
-                        print_chart(my_dataframe, active_coefficient, coefficient)
-                    else:
-                        print_chart2(my_dataframe, active_coefficient, coefficient, target)
-            if counter == 3:
-                with c3:
-                    if (len(targets)==0):
-                        print_chart(my_dataframe, active_coefficient, coefficient)
-                    else:
-                        print_chart2(my_dataframe, active_coefficient, coefficient, target)
-            if counter == 4:
-                with c4:
-                    if (len(targets)==0):
-                        print_chart(my_dataframe, active_coefficient, coefficient)
-                    else:
-                        print_chart2(my_dataframe, active_coefficient, coefficient, target)
+def comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols,targets):
+    c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
+    columns_array = [c1, c2, c3, c4]
+    counter = 1
 
-            counter += 1
-            if counter >= 5:
-                counter = 1
+    for coefficient in numeric_object_cols:
+        if counter == 1:
+            with c1:
+                if (len(targets) == 0):
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+                else:
+                    print_chart2(my_dataframe, active_coefficient, coefficient, target)
+        if counter == 2:
+            with c2:
+                if (len(targets) == 0):
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+                else:
+                    print_chart2(my_dataframe, active_coefficient, coefficient, target)
+        if counter == 3:
+            with c3:
+                if (len(targets) == 0):
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+                else:
+                    print_chart2(my_dataframe, active_coefficient, coefficient, target)
+        if counter == 4:
+            with c4:
+                if (len(targets) == 0):
+                    print_chart(my_dataframe, active_coefficient, coefficient)
+                else:
+                    print_chart2(my_dataframe, active_coefficient, coefficient, target)
 
+        counter += 1
+        if counter >= 5:
+            counter = 1
 
 
 def crossCharts(my_dataframe,target):

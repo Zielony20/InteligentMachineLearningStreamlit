@@ -41,7 +41,7 @@ def loadInterface():
             else:
                 preprocessing = st.selectbox(
                     'Choose preprocessing operation',
-                    ['Rename','Create New Column','Delete column'])
+                    ['Rename','Create New Column','Delete column','Missing Value Strategy'])
 
             if (preprocessing == 'Rename'):
                 column_name = st.text_input(label="New name",value=active_coefficient)
@@ -149,19 +149,21 @@ def loadInterface():
                     dataFrameWidget.dataframe(my_dataframe)
                     my_dataframe.to_csv(PWD + '/data.csv', index=False)
                     saveWidgets()
-                if st.button("Replace missing value with..."):
-                    if st.button("median"):
-                        my_dataframe = missingValueToChange(my_dataframe, active_coefficient, "median")
-                        dataFrameWidget.empty()
-                        dataFrameWidget.dataframe(my_dataframe)
-                        my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                        saveWidgets()
-                    if st.button("average"):
-                        my_dataframe = missingValueToChange(my_dataframe, active_coefficient, "average")
-                        dataFrameWidget.empty()
-                        dataFrameWidget.dataframe(my_dataframe)
-                        my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                        saveWidgets()
+                if st.button("Replace missing value with median"):
+                    my_dataframe = missingValueToChange(my_dataframe, active_coefficient, "median")
+                    print(my_dataframe[active_coefficient])
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
+                    st.experimental_rerun()
+                if st.button("Replace missing value with average"):
+                    my_dataframe = missingValueToChange(my_dataframe, active_coefficient, "average")
+                    dataFrameWidget.empty()
+                    dataFrameWidget.dataframe(my_dataframe)
+                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+                    saveWidgets()
+                    st.experimental_rerun()
 
             if preprocessing == 'Scale':
                 my_dataframe = scaleColumn(my_dataframe, active_coefficient)
@@ -190,7 +192,8 @@ def loadInterface():
         else:
             histogramWithKomogorov(active_coefficient,my_dataframe)
 
-        comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols)
+        #comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols)
+        chartsCoordinator(active_coefficient, my_dataframe, numeric_object_cols)
         targets = pf.getClassificationColums(my_dataframe)
         if (len(numeric_object_cols) <= 6 and (len(targets) > 0)):
             target = st.selectbox(
@@ -221,7 +224,7 @@ def loadInterface():
         [i for i in numeric_object_cols],
         optionUseToPredict)
 
-    if optionUseToPredict in class_object_cols:
+    if value_to_predict in class_object_cols:
 
         algorithm_model = st.selectbox(
         'Which Machine Learning model use?',
