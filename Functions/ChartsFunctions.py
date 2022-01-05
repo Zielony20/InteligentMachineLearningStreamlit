@@ -6,6 +6,20 @@ import scipy.stats as sc
 import plotly.express as px
 import plotly.graph_objects as go
 
+
+def print_chart_with_target(my_dataframe, active_coefficient, coefficient_to_compere, target):
+    #print(my_dataframe.loc[:,[active_coefficient, coefficient_to_compere, target]])
+    df = my_dataframe.loc[:,[active_coefficient, coefficient_to_compere, target]]
+
+    st.vega_lite_chart(df, {
+        'mark': {'type': 'circle', 'tooltip': False},
+        'encoding': {
+            'x': {'field': active_coefficient, 'type': 'quantitative'},
+            'y': {'field': coefficient_to_compere, 'type': 'quantitative'},
+            'size': {'field': target, 'type': 'nominal'},
+            'color': {'field': target, 'type': 'nominal'}
+        },
+    })
 def print_chart(my_dataframe, active_coefficient, coefficient_to_compere):
     class_object_cols = list(pf.getClassificationColums(my_dataframe))
     array = np.array([my_dataframe[active_coefficient], my_dataframe[coefficient_to_compere]]).T
@@ -23,24 +37,18 @@ def print_chart(my_dataframe, active_coefficient, coefficient_to_compere):
         },
     })
 
-def print_chart_with_target(my_dataframe, active_coefficient, coefficient_to_compere, target):
-    #print(my_dataframe.loc[:,[active_coefficient, coefficient_to_compere, target]])
-    df = my_dataframe.loc[:,[active_coefficient, coefficient_to_compere, target]]
-
-    st.vega_lite_chart(df, {
-        'mark': {'type': 'circle', 'tooltip': False},
-        'encoding': {
-            'x': {'field': active_coefficient, 'type': 'quantitative'},
-            'y': {'field': coefficient_to_compere, 'type': 'quantitative'},
-            'size': {'field': target, 'type': 'nominal'},
-            'color': {'field': target, 'type': 'nominal'}
-        },
-    })
-
 def print_chart2(my_dataframe, active_coefficient, coefficient_to_compere, target):
 
     fig = px.scatter(my_dataframe, x=active_coefficient, y=coefficient_to_compere, log_x=False, color=target)
     st.plotly_chart(fig, use_container_width=True)
+
+def print_chart_with_options(my_dataframe, active_coefficient,targets,numeric_object_cols):
+    c1, c2 = st.columns((5, 1))
+    with c2:
+        to_compere = st.selectbox("To compare", numeric_object_cols)
+        target = st.selectbox("Target", numeric_object_cols)
+    with c1:
+        print_chart2(my_dataframe, active_coefficient, to_compere, target)
 
 
 def histSimilarity(function):
@@ -95,60 +103,53 @@ def histogramWithKomogorov(active_coefficient,my_dataframe):
             st.text('\n')
             histSimilarity(my_dataframe[active_coefficient].to_numpy())
 
-
-def chartsCoordinator(active_coefficient,my_dataframe,numeric_object_cols):
-    targets = pf.getClassificationColums(my_dataframe)
-
-    if (len(numeric_object_cols) > 8 and len(targets) > 0):
-        comparisonCharts(active_coefficient, my_dataframe, numeric_object_cols, [])
-        c1, c2 = st.columns((5, 1))
-        with c2:
-            to_compere = st.selectbox("To compare", numeric_object_cols)
-            target = st.selectbox("Target", targets)
-        with c1:
-            print_chart2(my_dataframe, active_coefficient, to_compere, target)
-    else:
-        target = st.selectbox("Target", targets)
-        comparisonCharts(active_coefficient, my_dataframe, numeric_object_cols, targets)
-
-def comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols,targets):
+def simpleCharts(my_dataframe, active_coefficient,targets,numeric_object_cols):
     c1, c2, c3, c4 = st.columns((1, 1, 1, 1))
-    columns_array = [c1, c2, c3, c4]
+    counter = 1
+    for coefficient in numeric_object_cols:
+        with c1:
+            if counter == 1:
+                print_chart(my_dataframe, active_coefficient, coefficient)
+        with c2:
+            if counter == 2:
+                print_chart(my_dataframe, active_coefficient, coefficient)
+        with c3:
+            if counter == 3:
+                print_chart(my_dataframe, active_coefficient, coefficient)
+        with c4:
+            if counter == 4:
+                print_chart(my_dataframe, active_coefficient, coefficient)
+
+        counter += 1
+        if counter >= 5:
+            counter = 1
+def colorsCharts(my_dataframe, active_coefficient, targets, numeric_object_cols):
+    target = st.selectbox("Target", targets)
+    cc1, cc2, cc3, cc4 = st.columns((1, 1, 1, 1))
     counter = 1
 
+
     for coefficient in numeric_object_cols:
-        if counter == 1:
-            with c1:
-                if (len(targets) == 0):
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-                else:
-                    print_chart2(my_dataframe, active_coefficient, coefficient, target)
-        if counter == 2:
-            with c2:
-                if (len(targets) == 0):
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-                else:
-                    print_chart2(my_dataframe, active_coefficient, coefficient, target)
-        if counter == 3:
-            with c3:
-                if (len(targets) == 0):
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-                else:
-                    print_chart2(my_dataframe, active_coefficient, coefficient, target)
-        if counter == 4:
-            with c4:
-                if (len(targets) == 0):
-                    print_chart(my_dataframe, active_coefficient, coefficient)
-                else:
-                    print_chart2(my_dataframe, active_coefficient, coefficient, target)
+
+        with cc1:
+            if counter == 1:
+                print_chart2(my_dataframe, active_coefficient, coefficient, target)
+        with cc2:
+            if counter == 2:
+                print_chart2(my_dataframe, active_coefficient, coefficient, target)
+        with cc3:
+            if counter == 3:
+                print_chart2(my_dataframe, active_coefficient, coefficient, target)
+        with cc4:
+            if counter == 4:
+                print_chart2(my_dataframe, active_coefficient, coefficient, target)
 
         counter += 1
         if counter >= 5:
             counter = 1
 
-
-def crossCharts(my_dataframe,target):
-
+def crossCharts(my_dataframe,targets):
+    target = st.selectbox("Target ", targets)
     df = my_dataframe
     numeric_object_cols = pf.getNumericalColumns(my_dataframe)
     fig = px.scatter_matrix(df, dimensions=numeric_object_cols,
@@ -161,6 +162,25 @@ def crossCharts(my_dataframe,target):
         hovermode='closest',
     )
     st.plotly_chart(fig, use_container_width=True)
+
+def charts(my_dataframe,active_coefficient):
+
+    targets = pf.getClassificationColums(my_dataframe)
+    numeric_object_cols = pf.getNumericalColumns(my_dataframe)
+
+    if(len(targets)==0):
+        if(len(numeric_object_cols)<=6):
+            simpleCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
+        elif (len(numeric_object_cols) > 6):
+            simpleCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
+    elif(len(targets)>0):
+        if (len(numeric_object_cols) <= 6):
+            colorsCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
+            crossCharts(my_dataframe, targets)
+        elif (len(numeric_object_cols) > 6):
+            simpleCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
+            print_chart_with_options(my_dataframe, active_coefficient, targets, numeric_object_cols)
+
 
 def pieChart(my_dataframe,active_coefficient,values):
     df = my_dataframe

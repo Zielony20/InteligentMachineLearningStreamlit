@@ -193,15 +193,15 @@ def loadInterface():
             histogramWithKomogorov(active_coefficient,my_dataframe)
 
         #comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols)
-        chartsCoordinator(active_coefficient, my_dataframe, numeric_object_cols)
-        targets = pf.getClassificationColums(my_dataframe)
-        if (len(numeric_object_cols) <= 6 and (len(targets) > 0)):
-            target = st.selectbox(
-                    'Target ',
-                    targets)
-            crossCharts(my_dataframe, target)
+        #chartsCoordinator(active_coefficient, my_dataframe, numeric_object_cols)
+        #targets = pf.getClassificationColums(my_dataframe)
+        #if (len(numeric_object_cols) <= 6 and (len(targets) > 0)):
+        #    target = st.selectbox(
+        #            'Target ',
+        #            targets)
+        #    crossCharts(my_dataframe, target)
 
-
+        charts(my_dataframe, active_coefficient)
 
     csv = convert_df(my_dataframe)
     st.download_button(

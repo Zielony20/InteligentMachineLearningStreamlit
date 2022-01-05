@@ -16,7 +16,7 @@ def getNumericalColumns(my_dataframe):
     numeric_object_cols = list(n[n].index) + float_object_cols
     return numeric_object_cols
 
-def getClassificationColums(my_dataframe):
+def getClassificationColums(my_dataframe : pd.DataFrame):
     u = list(my_dataframe.nunique())
     class_object_cols = []
     for i in range(len(u)):
