@@ -50,25 +50,31 @@ def print_chart_with_options(my_dataframe, active_coefficient,targets,numeric_ob
     with c1:
         print_chart2(my_dataframe, active_coefficient, to_compere, target)
 
-
 def histSimilarity(function):
 
     list = {}
-    s ,_ = sc.kstest(function, "norm")
+    list_p = {}
+    s, p = sc.kstest(function, "norm")
     list["Normal"] = s
-    s, _ = sc.kstest(function, "uniform")
+    list_p["Normal"] = p
+    s, p = sc.kstest(function, "uniform")
     list["Uniform"] = s
-    s, _ = sc.kstest(function, "cauchy")
+    list_p["Uniform"] = p
+    s, p = sc.kstest(function, "cauchy")
     list["Cauchy"] = s
-    s, _ = sc.kstest(function, "expon")
+    list_p["Cauchy"] = p
+    s, p = sc.kstest(function, "expon")
     list["Expon"] = s
-    s, _ = sc.kstest(function, "laplace")
+    list_p["Expon"] = p
+    s, p = sc.kstest(function, "laplace")
     list["Laplace"] = s
-    s, _ = sc.kstest(function, "rayleigh")
+    list_p["Laplace"] = p
+    s, p = sc.kstest(function, "rayleigh")
     list["Rayleigh"] = s
+    list_p["Rayleigh"] = p
 
     dic = dict(sorted(list.items(),key= lambda x:x[1]))
-
+    #p_values = dict(sorted(list_p.items(), key=lambda x: x[1]))
     st.text("Most similar distributions:")
 
     counter = 0
@@ -77,9 +83,18 @@ def histSimilarity(function):
             break
         if(stat < 1):
             counter += 1
-            st.text(str(counter)+"."+dist)
+            st.text(str(counter)+"."+dist+"  p value = "+'{:0.3e}'.format(list_p[dist])  )
         if(counter == 0 and stat == 1):
             st.text("distributions not recognized")
+
+    #counter = 0
+    #for dist,stat in p_values.items():
+    #    if(counter == 6):
+    #        break
+    #    counter += 1
+    #    st.text(str(counter)+"."+dist+"p_value = "+str(stat))
+
+
 
 def histogramWithKomogorov(active_coefficient,my_dataframe):
     kolmogorov, histPlace, _ = st.columns((1, 4, 1))

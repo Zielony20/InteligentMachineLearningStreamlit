@@ -37,7 +37,7 @@ def testModel(model,trainX, validX, trainY, validY,X,Y, metrics):
     model_mae = mean_absolute_error(predictions, validY)
     model_rmsle = np.log(np.sqrt(model_mse))
     model_r2 = r2_score(predictions, validY)
-    st.title('Model Score: ' + str(round(model.score(validX, validY) * 100, 2)) + "%")
+    #st.title('Model Score: ' + str(round(model.score(validX, validY) * 100, 2)) + "%")
     if ("MSE" in metrics):
         st.title("MSE: " + str(round(model_mse, 2)))
     if ("RMSE" in metrics):
@@ -48,6 +48,13 @@ def testModel(model,trainX, validX, trainY, validY,X,Y, metrics):
         st.title("RMSLE: " + str(round(model_rmsle, 2)))
     if ("R2 Squared" in metrics):
         st.title("R2 Squared: " + str(round(model_r2, 2)))
+
+    import joblib
+    from Functions.FileSystemFunctions import get_binary_file_downloader_html
+    model = model.fit(X,Y)
+    joblib.dump(model, "my_model.pkl")
+    get_binary_file_downloader_html("my_model.pkl", "model")
+
 
     #predictCoefficient(model, X.columns)
 

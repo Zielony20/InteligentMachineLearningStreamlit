@@ -6,6 +6,7 @@ from Functions.JsonHandler import saveWidgets, json_widget_saver
 
 if __name__ != "__main__":
     PWD = os.getcwd()
+    Slash = '/'
 
 def get_binary_file_downloader_html(bin_file, file_label='File'):
     with open(bin_file, 'rb') as f:
@@ -44,3 +45,11 @@ def saveAll(dataFrameWidget, my_dataframe ,rerun=False, active_coefficient=False
 #    return dataFrameWidget
     if(rerun):
         st.experimental_rerun()
+
+
+def get_binary_file_downloader_html(bin_file, file_label='File'):
+    with open(PWD+Slash+bin_file, 'rb') as f:
+        data = f.read()
+    bin_str = base64.b64encode(data).decode()
+    href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Download {file_label}</a>'
+    st.markdown(href, unsafe_allow_html=True)
