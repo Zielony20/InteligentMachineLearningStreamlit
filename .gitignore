@@ -5,3 +5,4 @@ venv
 notatki
 dataframeGenerator.py
 .streamlit
+my_model.pkl
