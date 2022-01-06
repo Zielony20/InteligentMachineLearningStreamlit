@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 import base64
+from Functions.JsonHandler import saveWidgets, json_widget_saver
 
 if __name__ != "__main__":
     PWD = os.getcwd()
@@ -32,3 +33,14 @@ def download_csv(df):
     bin_file="csv.csv"
     href = f'<a href="data:file/csv;base64,{b64}" download="{bin_file}">Download csv file</a>'
     st.markdown(href, unsafe_allow_html=True)
+
+def saveAll(dataFrameWidget, my_dataframe ,rerun=False, active_coefficient=False):
+    dataFrameWidget.empty()
+    dataFrameWidget.dataframe(my_dataframe)
+    my_dataframe.to_csv(PWD + '/data.csv', index=False)
+    if(active_coefficient):
+        json_widget_saver['active_coefficient'] = active_coefficient
+    saveWidgets()
+#    return dataFrameWidget
+    if(rerun):
+        st.experimental_rerun()

@@ -157,8 +157,9 @@ def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',nu
     apply=False
     if (operation == 'Duplicate'):
         if st.button("Apply duplication"):
-            dataframe[column_name] = dataframe[column]
-            Apply = True
+            #dataframe[column_name] = dataframe[column]
+            dataframe.insert(len(dataframe.columns),column_name,dataframe[column].values)
+            apply = True
     if (operation == 'Addition'):
         cols = st.multiselect("choose columns to add", numeric_object_cols,[])
         dataframe[column_name] = 0

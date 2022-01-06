@@ -195,7 +195,3 @@ def counterPieChart(my_dataframe,active_coefficient):
     st.plotly_chart(fig, use_container_width=True)
 
 
-# Zaimplementować to:
-# https://plotly.com/python/plotly-express/
-
-

@@ -47,12 +47,8 @@ def loadInterface():
                 column_name = st.text_input(label="New name",value=active_coefficient)
                 if st.button("Apply"):
                     my_dataframe.rename(columns={active_coefficient: column_name}, inplace=True)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    active_coefficient = column_name
-                    saveWidgets()
-                    st.experimental_rerun()
+                    dataFrameWidget = saveAll(dataFrameWidget, my_dataframe ,rerun=True, active_coefficient=True)
+
             if (preprocessing == 'Create New Column'):
 
                 column_name = st.text_input("column name")
@@ -61,77 +57,55 @@ def loadInterface():
                 apply=False
                 my_dataframe,apply = CreateNewColumn(my_dataframe,active_coefficient,column_name,operation,numeric_object_cols)
                 if apply:
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    saveWidgets()
-                    st.experimental_rerun()
+                    saveAll(dataFrameWidget, my_dataframe ,rerun=True)
+
             if (preprocessing == 'Power Transformer'):
-                method = st.selectbox('method',['yeo-johnson','box-cox'])
+                if(min(my_dataframe[active_coefficient]) > 0):
+                    methods = ['yeo-johnson','box-cox']
+                else:
+                    methods = ['yeo-johnson']
+                method = st.selectbox('method',methods)
                 if (st.button("Apply Power Transformer")):
                     my_dataframe = MyPowerTransformer(my_dataframe, active_coefficient, method)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    saveWidgets()
+                    saveAll(dataFrameWidget, my_dataframe ,rerun=True)
+
             if (preprocessing == 'Robust Scaler'):
                 if(st.button("Apply Robust Scaler")):
                     my_dataframe = MyRobustScaler(my_dataframe, active_coefficient)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    saveWidgets()
+                    saveAll(dataFrameWidget, my_dataframe ,rerun=False)
             if (preprocessing == 'Quantile Transformer'):
                 distribution = st.selectbox('distribution',
                                             ['uniform','normal'])
                 n_quantiles = st.slider("n_quantiles", min_value=0, max_value=100, value=5, step=1)
                 if (st.button("Apply Quantile Transformer" )):
                     my_dataframe = MyQuantileTransformer(my_dataframe,active_coefficient,distribution,n_quantiles)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    saveWidgets()
+                    saveAll(dataFrameWidget, my_dataframe ,rerun=False)
             if (preprocessing == 'Normalization'):
                 if st.button("Apply normalization"):
                     my_dataframe[active_coefficient] = normalized(my_dataframe, active_coefficient)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    saveWidgets()
+                    saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
                 if st.button("Apply normalization on all columns"):
                     my_dataframe[numeric_object_cols] = normalizedAll(my_dataframe, numerical_cols=numeric_object_cols)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    saveWidgets()
+                    saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
             if (preprocessing == 'Standarization'):
                 if st.button("Apply standarization"):
                     my_dataframe[active_coefficient] = standarization(dataframe=my_dataframe, active_coefficient=active_coefficient)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    saveWidgets()
+                    saveAll(dataFrameWidget, my_dataframe ,rerun=False)
                 if st.button("Apply standarization on all columns"):
                     my_dataframe[numeric_object_cols] = standarizationAll(dataframe=my_dataframe,
                                                                        numerical_cols=numeric_object_cols)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    saveWidgets()
+                    saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
 
 #            'Scale', 'Resize Range', 'Missing Value Strategy'
             if preprocessing == 'Delete column':
                 if st.button("Delete column"):
                     my_dataframe, active_coefficient, numeric_object_cols = dropColumn(my_dataframe,active_coefficient,numeric_object_cols)
-                    dataFrameWidget.empty()
-                    dataFrameWidget.dataframe(my_dataframe)
-                    my_dataframe.to_csv(PWD + '/data.csv', index=False)
-                    json_widget_saver['active_coefficient'] = active_coefficient
-                    saveWidgets()
-                    st.experimental_rerun()
+
+
+                    saveAll(dataFrameWidget, my_dataframe, rerun=True, active_coefficient=True)
 
             if preprocessing == 'Missing Value Strategy':
                 if st.button("Delete column"):
