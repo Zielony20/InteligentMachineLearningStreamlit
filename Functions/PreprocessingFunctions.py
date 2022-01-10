@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import scipy.stats as sc
-from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, PowerTransformer
+from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, PowerTransformer, PolynomialFeatures
 
 def getObjectsColumns(my_dataframe):
     s = (my_dataframe.dtypes == 'object')
@@ -106,6 +106,13 @@ def normalized(dataframe,active_coefficient):
     norm = MinMaxScaler().fit(dataframe[[active_coefficient]])
     #dataframe[active_coefficient] = norm.transform(dataframe[active_coefficient])
     return pd.DataFrame( norm.transform(dataframe[[active_coefficient]]))
+
+def polyFeature(dataframe,column,degree):
+    X = dataframe[column].to_numpy().reshape(-1, 1)
+    poly = PolynomialFeatures(degree=degree)
+    result = poly.fit_transform(X)
+    dataframe[column] = result
+    return dataframe
 
 def standarizationAll(dataframe,numerical_cols):
     train_stand = dataframe[numerical_cols].copy()

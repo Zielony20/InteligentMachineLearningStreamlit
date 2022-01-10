@@ -39,7 +39,7 @@ def loadInterface():
                 'Choose preprocessing operation',
                 ['Rename', 'Create New Column', 'Delete column', 'Scale', 'Resize Range', 'Missing Value Strategy',
                  'Normalization', 'Standarization', 'Quantile Transformer',
-                 'Robust Scaler', 'Power Transformer'])
+                 'Robust Scaler', 'Power Transformer', 'PolynomialTransform'])
             else:
                 preprocessing = st.selectbox(
                     'Choose preprocessing operation',
@@ -106,8 +106,6 @@ def loadInterface():
             if preprocessing == 'Delete column':
                 if st.button("Delete column"):
                     my_dataframe, active_coefficient, numeric_object_cols = dropColumn(my_dataframe,active_coefficient,numeric_object_cols)
-
-
                     saveAll(dataFrameWidget, my_dataframe, rerun=True, active_coefficient=True)
 
             if preprocessing == 'Missing Value Strategy':
@@ -155,6 +153,12 @@ def loadInterface():
                 dataFrameWidget.dataframe(my_dataframe)
                 my_dataframe.to_csv(PWD + '/data.csv', index=False)
                 saveWidgets()
+            if preprocessing == 'PolynomialTransform':
+
+                degree = st.slider("degree", min_value=0, max_value=360, value=0, step=1)
+                if st.button("transform"):
+                    my_dataframe = polyFeature(my_dataframe, active_coefficient, degree)
+                    saveAll(dataFrameWidget, my_dataframe, rerun=True, active_coefficient=True)
 
 #End of sidebar
 
@@ -205,12 +209,12 @@ def loadInterface():
 
         algorithm_model = st.selectbox(
         'Which Machine Learning model use?',
-        ['LinearRegression','DecisionTree','RandomForestRegressor', 'KNeighborsClassifier','LogisticRegression','SGDClassifier'])
+        ['LinearRegression','DecisionTreeClassifier','RandomForestRegressor', 'KNeighborsClassifier','LogisticRegression','SGDClassifier'])
 
     else:
         algorithm_model = st.selectbox(
             'Which Machine Learning model use?',
-            ['LinearRegression', 'DecisionTree', 'RandomForestRegressor','SGDClassifier'])
+            ['LinearRegression', 'DecisionTreeRegressor', 'RandomForestRegressor','Lasso','SupportVectorRegression'])
 
     metrics = st.multiselect(
         "Which metrics show?",
