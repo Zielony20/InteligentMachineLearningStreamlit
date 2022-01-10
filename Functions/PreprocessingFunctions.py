@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import scipy.stats as sc
-from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, Normalizer, PowerTransformer
+from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, PowerTransformer
 
 def getObjectsColumns(my_dataframe):
     s = (my_dataframe.dtypes == 'object')

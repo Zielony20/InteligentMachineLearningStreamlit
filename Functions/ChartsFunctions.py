@@ -168,13 +168,14 @@ def crossCharts(my_dataframe,targets):
     df = my_dataframe
     numeric_object_cols = pf.getNumericalColumns(my_dataframe)
     fig = px.scatter_matrix(df, dimensions=numeric_object_cols,
-                            color=target)
+                            color=target, color_continuous_scale="Rainbow") #agsunset
     fig.update_layout(
         title="",
         dragmode='select',
         width=600,
         height=600,
         hovermode='closest',
+
     )
     st.plotly_chart(fig, use_container_width=True)
 

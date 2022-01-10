@@ -5,7 +5,7 @@ from Functions.ChartsFunctions import *
 from Functions.PreprocessingFunctions import *
 
 def loadInterface():
-
+    original_dataframe = pd.read_csv(PWD + '/original.csv',index_col=None)
     my_dataframe = pd.read_csv(PWD + '/data.csv',index_col=None)
     dataFrameWidget = st.dataframe(my_dataframe)
     object_cols = getObjectsColumns(my_dataframe)
@@ -20,6 +20,8 @@ def loadInterface():
 
     with st.sidebar:
         csv = convert_df(my_dataframe)
+        if st.button("Load original data"):
+            my_dataframe = pd.read_csv(PWD + '/original.csv', index_col=None)
         st.download_button(
             label="Download data as CSV ",
             data=csv,
@@ -80,6 +82,7 @@ def loadInterface():
                 if (st.button("Apply Quantile Transformer" )):
                     my_dataframe = MyQuantileTransformer(my_dataframe,active_coefficient,distribution,n_quantiles)
                     saveAll(dataFrameWidget, my_dataframe ,rerun=False)
+
             if (preprocessing == 'Normalization'):
                 if st.button("Apply normalization"):
                     my_dataframe[active_coefficient] = normalized(my_dataframe, active_coefficient)
@@ -125,7 +128,7 @@ def loadInterface():
                     saveWidgets()
                 if st.button("Replace missing value with median"):
                     my_dataframe = missingValueToChange(my_dataframe, active_coefficient, "median")
-                    print(my_dataframe[active_coefficient])
+                    #print(my_dataframe[active_coefficient])
                     dataFrameWidget.empty()
                     dataFrameWidget.dataframe(my_dataframe)
                     my_dataframe.to_csv(PWD + '/data.csv', index=False)
@@ -202,19 +205,35 @@ def loadInterface():
 
         algorithm_model = st.selectbox(
         'Which Machine Learning model use?',
-        ['DecisionTree','RandomForestRegressor', 'KNeighborsClassifier','LogisticRegression','SGDClassifier'])
+        ['LinearRegression','DecisionTree','RandomForestRegressor', 'KNeighborsClassifier','LogisticRegression','SGDClassifier'])
 
     else:
         algorithm_model = st.selectbox(
             'Which Machine Learning model use?',
-            ['LinearRegression', 'DecisionTree', 'RandomForestRegressor'])
+            ['LinearRegression', 'DecisionTree', 'RandomForestRegressor','SGDClassifier'])
 
     metrics = st.multiselect(
         "Which metrics show?",
         ['MAE', 'MSE', 'RMSE', 'RMSLE', 'R squared'],
         []
     )
+    original_option_use_to_predict = list()
+    for i in original_dataframe.columns:
+        if i in option_use_to_predict:
+            original_option_use_to_predict.append(i)
+    readyToTests ,model = createModel([my_dataframe,original_dataframe], option_use_to_predict, value_to_predict, algorithm_model)
 
-    createModel(my_dataframe, option_use_to_predict, value_to_predict, algorithm_model, metrics)
+    if(readyToTests):
+        modify_data, original_data = st.columns((1,1))
+        with modify_data:
+            st.title("Data with preprocessing")
+            trainX, validX, trainY, validY, X, Y = splitData(my_dataframe,option_use_to_predict,value_to_predict)
+            testModel(model, trainX, validX, trainY, validY, X, Y , metrics)
+        with original_data:
+            st.title("Original data")
+            trainX, validX, trainY, validY, X, Y = splitData(original_dataframe,original_option_use_to_predict,value_to_predict)
+            testModel(model, trainX, validX, trainY, validY, X, Y , metrics)
+
+
 
 

@@ -8,6 +8,8 @@ if __name__ != "__main__":
     PWD = os.getcwd()
     Slash = '/'
 
+
+
 def get_binary_file_downloader_html(bin_file, file_label='File'):
     with open(bin_file, 'rb') as f:
         data = f.read()
@@ -19,12 +21,12 @@ def get_binary_file_downloader_html(bin_file, file_label='File'):
 def convert_df(df):
     return df.to_csv().encode('utf-8')
 
-def save_df_to_csv(df):
-    df.to_csv(PWD+'/data.csv', index=False)
+def save_df_to_csv(df, name="data"):
+    df.to_csv(PWD+'/'+name+'.csv', index=False)
 
 
-def save_uploadedfile(uploadedfile):
-    with open(PWD + '/data.csv', "wb") as f:
+def save_uploadedfile(uploadedfile,name="data"):
+    with open(PWD + '/'+name+'.csv', "wb") as f:
         f.write(uploadedfile.getbuffer())
     return st.success("Saved File:{} on Server".format(uploadedfile.name))
 
