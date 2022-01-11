@@ -22,6 +22,7 @@ def loadInterface():
         csv = convert_df(my_dataframe)
         if st.button("Load original data"):
             my_dataframe = pd.read_csv(PWD + '/original.csv', index_col=None)
+            saveAll(dataFrameWidget, my_dataframe, rerun=True)
         st.download_button(
             label="Download data as CSV ",
             data=csv,
