@@ -86,7 +86,6 @@ def splitData(my_dataframe,option_use_to_predict,value_to_predict):
 
 def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_model):
 
-
     #finaltrainX, finaltestX, finaltrainY, finaltestY, X, Y = splitData(my_dataframe,option_use_to_predict,value_to_predict)
 
     if algorithm_model == 'LinearRegression':
@@ -125,7 +124,7 @@ def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_mo
     elif algorithm_model == 'DecisionTreeRegressor':
         first, second, third, forth, fifth = st.columns((1, 1, 1, 1, 1))
         with first:
-            criterion = st.selectbox("criterion",["squared_error", "friedman_mse", "absolute_error", "poisson"])
+            criterion = st.selectbox("criterion",["squared_error", "friedman_mse", "absolute_error"])
         with second:
             min_samples_leaf = st.selectbox("min_samples_leaf",[1,2,3,4,5])
         with third:
