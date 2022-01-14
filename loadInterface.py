@@ -195,6 +195,7 @@ def loadInterface():
 
         charts(my_dataframe, active_coefficient)
 
+    correlationHeatmap(my_dataframe)
     csv = convert_df(my_dataframe)
     st.download_button(
         label="Download data as CSV",

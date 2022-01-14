@@ -5,7 +5,8 @@ import pandas as pd
 import scipy.stats as sc
 import plotly.express as px
 import plotly.graph_objects as go
-
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def print_chart_with_target(my_dataframe, active_coefficient, coefficient_to_compere, target):
     #print(my_dataframe.loc[:,[active_coefficient, coefficient_to_compere, target]])
@@ -40,7 +41,7 @@ def print_chart(my_dataframe, active_coefficient, coefficient_to_compere):
 
 def print_chart2(my_dataframe, active_coefficient, coefficient_to_compere, target):
 
-    fig = px.scatter(my_dataframe, x=active_coefficient, y=coefficient_to_compere, log_x=False, color=target, color_continuous_scale="Rainbow")
+    fig = px.scatter(my_dataframe, x=active_coefficient, y=coefficient_to_compere, log_x=False, color=target, color_continuous_scale="Bluered") #Bluered #Rainbow
     st.plotly_chart(fig, use_container_width=True)
 
 def print_chart_with_options(my_dataframe, active_coefficient,targets,numeric_object_cols):
@@ -169,7 +170,7 @@ def crossCharts(my_dataframe,targets):
     df = my_dataframe
     numeric_object_cols = pf.getNumericalColumns(my_dataframe)
     fig = px.scatter_matrix(df, dimensions=numeric_object_cols,
-                            color=target, color_continuous_scale="Rainbow") #agsunset
+                            color=target, color_continuous_scale="Bluered") #agsunset #Bluered #Rainbow
     fig.update_layout(
         title="",
         dragmode='select',
@@ -208,6 +209,12 @@ def counterPieChart(my_dataframe,active_coefficient):
     labels = df[active_coefficient].unique()
     values = df[active_coefficient].value_counts().values
     fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+    st.plotly_chart(fig, use_container_width=True)
+
+
+def correlationHeatmap(my_dataframe):
+    fig = px.imshow(my_dataframe.corr(), color_continuous_scale="Bluered")
+    #ax = sns.heatmap(my_dataframe.corr(), annot=True)
     st.plotly_chart(fig, use_container_width=True)
 
 
