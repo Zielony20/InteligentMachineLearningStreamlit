@@ -1,6 +1,7 @@
 __pycache__
 data.csv
 original.csv
+lastchange.csv
 venv
 .idea
 notatki
