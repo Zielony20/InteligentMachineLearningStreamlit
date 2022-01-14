@@ -20,6 +20,7 @@ def print_chart_with_target(my_dataframe, active_coefficient, coefficient_to_com
             'color': {'field': target, 'type': 'nominal'}
         },
     })
+
 def print_chart(my_dataframe, active_coefficient, coefficient_to_compere):
     class_object_cols = list(pf.getClassificationColums(my_dataframe))
     array = np.array([my_dataframe[active_coefficient], my_dataframe[coefficient_to_compere]]).T
@@ -39,7 +40,7 @@ def print_chart(my_dataframe, active_coefficient, coefficient_to_compere):
 
 def print_chart2(my_dataframe, active_coefficient, coefficient_to_compere, target):
 
-    fig = px.scatter(my_dataframe, x=active_coefficient, y=coefficient_to_compere, log_x=False, color=target)
+    fig = px.scatter(my_dataframe, x=active_coefficient, y=coefficient_to_compere, log_x=False, color=target, color_continuous_scale="Rainbow")
     st.plotly_chart(fig, use_container_width=True)
 
 def print_chart_with_options(my_dataframe, active_coefficient,targets,numeric_object_cols):
@@ -138,11 +139,11 @@ def simpleCharts(my_dataframe, active_coefficient,targets,numeric_object_cols):
         counter += 1
         if counter >= 5:
             counter = 1
+
 def colorsCharts(my_dataframe, active_coefficient, targets, numeric_object_cols):
-    target = st.selectbox("Target", targets)
+    target = st.selectbox("Target", numeric_object_cols)#targets
     cc1, cc2, cc3, cc4 = st.columns((1, 1, 1, 1))
     counter = 1
-
 
     for coefficient in numeric_object_cols:
 
@@ -197,7 +198,6 @@ def charts(my_dataframe,active_coefficient):
             simpleCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
             print_chart_with_options(my_dataframe, active_coefficient, targets, numeric_object_cols)
 
-
 def pieChart(my_dataframe,active_coefficient,values):
     df = my_dataframe
     fig = px.pie(df, values=values, names=active_coefficient)
@@ -209,5 +209,6 @@ def counterPieChart(my_dataframe,active_coefficient):
     values = df[active_coefficient].value_counts().values
     fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
     st.plotly_chart(fig, use_container_width=True)
+
 
 

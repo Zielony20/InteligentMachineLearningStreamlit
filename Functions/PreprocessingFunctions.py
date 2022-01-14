@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as sc
 from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, PowerTransformer, PolynomialFeatures
+from Functions import FileSystemFunctions as fsf
 
 def getObjectsColumns(my_dataframe):
     s = (my_dataframe.dtypes == 'object')
@@ -36,6 +37,7 @@ def resizeColumn(my_dataframe, active_coefficient):
         try:
             t_min = float(t_min)
             t_max = float(t_max)
+            fsf.saveLastChange(my_dataframe, active_coefficient)
             my_dataframe[active_coefficient] = (my_dataframe[active_coefficient].astype(float) - r_min) / (
                         r_max - r_min) * (t_max - t_min) + t_min
         except ValueError:
@@ -44,7 +46,7 @@ def resizeColumn(my_dataframe, active_coefficient):
     return my_dataframe
 
 def scaleColumn(my_dataframe, active_coefficient):
-
+    fsf.saveLastChange(my_dataframe, active_coefficient)
     scaler = st.slider("", min_value=-10, max_value=10, value=0, step=1)
     if st.button("Apply change"):
         float_value = float(10)
@@ -64,7 +66,8 @@ def changeValueInColumn(my_dataframe,active_coefficient):
         DataType = st.radio("Type of data", ('Int64', 'Float64', 'Boolean', 'String'))
     if st.button("Apply"):
         tempType = my_dataframe[active_coefficient].dtype
-    my_dataframe[active_coefficient] = my_dataframe[active_coefficient].replace([ValueToChange], NewValue)
+        fsf.saveLastChange(my_dataframe, active_coefficient)
+        my_dataframe[active_coefficient] = my_dataframe[active_coefficient].replace([ValueToChange], NewValue)
     #for i in my_dataframe[active_coefficient]:
 
     return my_dataframe
@@ -77,6 +80,7 @@ def missingValueToChange(my_dataframe : pd.DataFrame,active_coefficient,strategy
     #x = lambda a : np.nan if isinstance(a, numbers.Number) else np.nan
     #my_dataframe.insert(0,active_coefficient,[ x(i) for i in my_dataframe["Copy"] ],True)
     #my_dataframe, _, _ = dropColumn(my_dataframe, "Copy")
+    fsf.saveLastChange(my_dataframe, active_coefficient)
     if strategy == "median":
         median = my_dataframe[active_coefficient].median()
         my_dataframe[active_coefficient] = my_dataframe[active_coefficient].fillna(0, inplace=True)
@@ -86,6 +90,7 @@ def missingValueToChange(my_dataframe : pd.DataFrame,active_coefficient,strategy
     return my_dataframe
 
 def dropColumn(my_dataframe : pd.DataFrame,active_coefficient,float_object_cols=None):
+    fsf.saveLastChange(my_dataframe, active_coefficient)
     my_dataframe = my_dataframe.drop(active_coefficient, axis=1)
     numeric = list(float_object_cols)
     if (active_coefficient in numeric):
@@ -94,20 +99,23 @@ def dropColumn(my_dataframe : pd.DataFrame,active_coefficient,float_object_cols=
     return my_dataframe, active_coefficient, numeric
 
 def dropRows(my_dataframe,active_coefficient):
+    fsf.saveLastChange(my_dataframe, active_coefficient)
     my_dataframe = my_dataframe.dropna(axis=0, how='any', thresh=None, subset=[active_coefficient], inplace=False)
     return my_dataframe
 
 def normalizedAll(dataframe,numerical_cols):
+    fsf.saveLastChange(dataframe)
     norm = MinMaxScaler().fit(dataframe[numerical_cols])
     return pd.DataFrame( norm.transform(dataframe[numerical_cols]))
 
 def normalized(dataframe,active_coefficient):
-
+    fsf.saveLastChange(dataframe, active_coefficient)
     norm = MinMaxScaler().fit(dataframe[[active_coefficient]])
     #dataframe[active_coefficient] = norm.transform(dataframe[active_coefficient])
     return pd.DataFrame( norm.transform(dataframe[[active_coefficient]]))
 
 def polyFeature(dataframe,column,degree):
+    fsf.saveLastChange(dataframe, column)
     X = dataframe[column].to_numpy().reshape(-1, 1)
     poly = PolynomialFeatures(degree=degree)
     result = poly.fit_transform(X)
@@ -115,6 +123,7 @@ def polyFeature(dataframe,column,degree):
     return dataframe
 
 def standarizationAll(dataframe,numerical_cols):
+    fsf.saveLastChange(dataframe)
     train_stand = dataframe[numerical_cols].copy()
 
     for i in numerical_cols:
@@ -123,13 +132,13 @@ def standarizationAll(dataframe,numerical_cols):
     return train_stand
 
 def standarization(dataframe,active_coefficient):
-
+    fsf.saveLastChange(dataframe, active_coefficient)
     scale = StandardScaler().fit(dataframe[[active_coefficient]])
     dataframe[active_coefficient] = scale.transform(dataframe[[active_coefficient]])
     return dataframe[active_coefficient]
 
 def MyQuantileTransformer(dataframe,column,distribution="uniform",n_quantiles=6):
-
+    fsf.saveLastChange(dataframe, column)
     qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, output_distribution=distribution)
     X = dataframe[column].to_numpy().reshape(-1,1)
     result = qt.fit_transform(X)
@@ -137,14 +146,14 @@ def MyQuantileTransformer(dataframe,column,distribution="uniform",n_quantiles=6)
     return dataframe
 
 def MyRobustScaler(dataframe,column):
-
+    fsf.saveLastChange(dataframe, column)
     X = dataframe[column].to_numpy().reshape(-1,1)
     rs = RobustScaler().fit_transform(X)
     dataframe[column] = rs
     return dataframe
 
 def MyPowerTransformer(dataframe,column,method="yeo-johnson"):
-
+    fsf.saveLastChange(dataframe, column)
     X = dataframe[column].to_numpy().reshape(-1, 1)
     pt = PowerTransformer(method=method).fit_transform(X)
     dataframe[column] = pt
@@ -161,16 +170,18 @@ def MyPowerTransformer(dataframe,column,method="yeo-johnson"):
 
 
 def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',numeric_object_cols=""):
+
     apply=False
     if (operation == 'Duplicate'):
         if st.button("Apply duplication"):
-            #dataframe[column_name] = dataframe[column]
+            fsf.saveLastChange(dataframe, column)
             dataframe.insert(len(dataframe.columns),column_name,dataframe[column].values)
             apply = True
     if (operation == 'Addition'):
         cols = st.multiselect("choose columns to add", numeric_object_cols,[])
         dataframe[column_name] = 0
         if(st.button("Apply addition")):
+            fsf.saveLastChange(dataframe, column)
             for c in cols:
                 dataframe[column_name] = dataframe[column_name] + dataframe[c]
             apply = True
@@ -179,6 +190,7 @@ def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',nu
         cols = st.multiselect("choose columns to add", numeric_object_cols, [])
 
         if st.button("Apply multiplication"):
+            fsf.saveLastChange(dataframe, column)
             dataframe[column_name] = 1
             for c in cols:
                 dataframe[column_name] = dataframe[column_name] * dataframe[c]
@@ -188,6 +200,7 @@ def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',nu
         power = st.slider("Power", min_value=0, max_value=9, value=1, step=1)
 
         if st.button("Apply exponentiation"):
+            fsf.saveLastChange(dataframe, column)
             dataframe[column_name] = np.power(dataframe[column],power)
             apply = True
 

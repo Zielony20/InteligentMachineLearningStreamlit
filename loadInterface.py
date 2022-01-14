@@ -21,8 +21,18 @@ def loadInterface():
     with st.sidebar:
         csv = convert_df(my_dataframe)
         if st.button("Load original data"):
-            my_dataframe = pd.read_csv(PWD + '/original.csv', index_col=None)
+            my_dataframe = loadCsv("original.csv")
+                #pd.read_csv(PWD + '/original.csv', index_col=None)
             saveAll(dataFrameWidget, my_dataframe, rerun=True)
+
+        if st.button("Undo last change"):
+            my_dataframe = loadCsv('lastchange.csv')
+               # pd.read_csv(PWD + '/lastchange.csv', index_col=None)
+            #my_dataframe, active_coefficient, numeric_object_cols = dropColumn(my_dataframe, active_coefficient,
+            #                                                                   numeric_object_cols)
+            saveAll(dataFrameWidget, my_dataframe, rerun=True)
+
+
         st.download_button(
             label="Download data as CSV ",
             data=csv,
@@ -219,8 +229,8 @@ def loadInterface():
 
     metrics = st.multiselect(
         "Which metrics show?",
-        ['MAE', 'MSE', 'RMSE', 'RMSLE', 'R squared'],
-        []
+        ['classification score','MAE', 'MSE', 'RMSE', 'RMSLE', 'R squared'],
+        ['classification score','MAE', 'MSE', 'RMSE']
     )
     original_option_use_to_predict = list()
     for i in original_dataframe.columns:

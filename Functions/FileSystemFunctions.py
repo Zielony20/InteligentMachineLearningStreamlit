@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import base64
 from Functions.JsonHandler import saveWidgets, json_widget_saver
-
+from Functions.PreprocessingFunctions import dropColumn
 if __name__ != "__main__":
     PWD = os.getcwd()
     Slash = '/'
@@ -36,6 +36,19 @@ def download_csv(df):
     bin_file="csv.csv"
     href = f'<a href="data:file/csv;base64,{b64}" download="{bin_file}">Download csv file</a>'
     st.markdown(href, unsafe_allow_html=True)
+
+def loadCsv(file):
+    dataframe = pd.read_csv(PWD + '/' + file, index_col=None)
+    if( "Unnamed: 0" in dataframe.columns):
+        dataframe,_,_ = dropColumn(dataframe, "Unnamed: 0", dataframe.columns)
+    return dataframe
+
+def saveLastChange(my_dataframe,active_coefficient=False):
+    my_dataframe.to_csv(PWD + '/lastchange.csv', index=False)
+    if (active_coefficient):
+        json_widget_saver['active_coefficient'] = active_coefficient
+    saveWidgets()
+
 
 def saveAll(dataFrameWidget, my_dataframe ,rerun=False, active_coefficient=False):
     dataFrameWidget.empty()

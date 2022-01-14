@@ -14,6 +14,7 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import joblib
 from Functions.FileSystemFunctions import get_binary_file_downloader_html
 
+
 def predictCoefficient(model,columns):
 
     cols = []
@@ -24,7 +25,7 @@ def predictCoefficient(model,columns):
 
 def testModel(model,trainX, validX, trainY, validY,X,Y, metrics, scoring=None, scaling=None):
     #st.title(Y.nunique)
-    if(scoring is None):
+    if(len(metrics)==0 or "classification score" in metrics):
         cvs = cross_val_score(model, X, Y, cv=5, scoring=scoring)
         print(round(cvs.mean(), 2))
         st.title('Mean cross-validation score: '+str(round(cvs.mean()*100, 2))+"%")
@@ -33,12 +34,6 @@ def testModel(model,trainX, validX, trainY, validY,X,Y, metrics, scoring=None, s
     #if scaling="poly":
 
     if(len(metrics)>0):
-        #model_mse = mean_squared_error(predictions, validY)
-        #model_rmse = np.sqrt(model_mse)
-        #model_mae = mean_absolute_error(predictions, validY)
-        #model_rmsle = np.log(np.sqrt(model_mse))
-        #model_r2 = r2_score(predictions, validY)
-        #st.title('Model Score: ' + str(round(model.score(validX, validY) * 100, 2)) + "%")
         if ("MSE" in metrics):
      #       st.title("MSE: " + str(model_mse))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_mean_squared_error")
@@ -201,3 +196,8 @@ def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_mo
         #testModel(kmeans, finaltrainX, finaltestX, finaltrainY, finaltestY,X,Y, metrics)
 
     return False,False
+
+
+
+
+
