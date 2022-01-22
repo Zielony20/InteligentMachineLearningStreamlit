@@ -48,7 +48,7 @@ def print_chart_with_options(my_dataframe, active_coefficient,targets,numeric_ob
     c1, c2 = st.columns((5, 1))
     with c2:
         to_compere = st.selectbox("To compare", numeric_object_cols)
-        target = st.selectbox("Target", numeric_object_cols)
+        target = st.selectbox("Target  ", numeric_object_cols)
     with c1:
         print_chart2(my_dataframe, active_coefficient, to_compere, target)
 
@@ -186,17 +186,20 @@ def charts(my_dataframe,active_coefficient):
     targets = pf.getClassificationColums(my_dataframe)
     numeric_object_cols = pf.getNumericalColumns(my_dataframe)
 
+    border = 7
+
     if(len(targets)==0):
-        if(len(numeric_object_cols)<=6):
+        if(len(numeric_object_cols)<=border):
             simpleCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
-        elif (len(numeric_object_cols) > 6):
+        elif (len(numeric_object_cols) > border):
             simpleCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
     elif(len(targets)>0):
-        if (len(numeric_object_cols) <= 6):
+        if (len(numeric_object_cols) <= border):
             colorsCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
             crossCharts(my_dataframe, targets)
-        elif (len(numeric_object_cols) > 6):
-            simpleCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
+        elif (len(numeric_object_cols) > border):
+            #simpleCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
+            colorsCharts(my_dataframe, active_coefficient, targets, numeric_object_cols)
             print_chart_with_options(my_dataframe, active_coefficient, targets, numeric_object_cols)
 
 def pieChart(my_dataframe,active_coefficient,values):

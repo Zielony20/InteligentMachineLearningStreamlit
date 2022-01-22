@@ -48,13 +48,15 @@ def loadInterface():
             if(active_coefficient in numeric_object_cols):
                 preprocessing = st.selectbox(
                 'Choose preprocessing operation',
-                ['Rename', 'Create New Column', 'Delete column', 'Scale', 'Resize Range', 'Missing Value Strategy',
+                ['Rename', 'Create New Column', 'Delete column', 'Scale', 'Resize Range',
                  'Normalization', 'Standarization', 'Quantile Transformer',
-                 'Robust Scaler', 'Power Transformer', 'PolynomialTransform'])
+                 'Robust Scaler', 'Power Transformer'])
+                # inactive
+                #,'Missing Value Strategy', 'PolynomialTransform'
             else:
                 preprocessing = st.selectbox(
                     'Choose preprocessing operation',
-                    ['Rename','Create New Column','Delete column','Missing Value Strategy'])
+                    ['Rename','Create New Column','Delete column']) #,'Missing Value Strategy'
 
             if (preprocessing == 'Rename'):
                 column_name = st.text_input(label="New name",value=active_coefficient)
@@ -67,31 +69,55 @@ def loadInterface():
                 column_name = st.text_input("column name")
                 operation = st.selectbox('choose operation',
                                          ['Duplicate','Addition','Multiplication','Raise to power'])
-                apply=False
+                apply = False
                 my_dataframe,apply = CreateNewColumn(my_dataframe,active_coefficient,column_name,operation,numeric_object_cols)
                 if apply:
                     saveAll(dataFrameWidget, my_dataframe ,rerun=True)
 
             if (preprocessing == 'Power Transformer'):
-                if(min(my_dataframe[active_coefficient]) > 0):
-                    methods = ['yeo-johnson','box-cox']
+
+                columns = st.multiselect(
+                    "Which columns modify?",
+                    numeric_object_cols,
+                    [active_coefficient]
+                )
+                moreThanZero = True
+                for i in columns:
+                    if min(my_dataframe[i]) <= 0:
+                        moreThanZero = False
+                        break
+
+                if (moreThanZero):
+                    methods = ['yeo-johnson', 'box-cox']
                 else:
                     methods = ['yeo-johnson']
-                method = st.selectbox('method',methods)
+                method = st.selectbox('method', methods)
+
                 if (st.button("Apply Power Transformer")):
-                    my_dataframe = MyPowerTransformer(my_dataframe, active_coefficient, method)
+                    my_dataframe = MyPowerTransformer(my_dataframe, columns, method)
                     saveAll(dataFrameWidget, my_dataframe ,rerun=True)
 
             if (preprocessing == 'Robust Scaler'):
+                columns = st.multiselect(
+                    "Which columns modify?",
+                    numeric_object_cols,
+                    [active_coefficient]
+                )
                 if(st.button("Apply Robust Scaler")):
-                    my_dataframe = MyRobustScaler(my_dataframe, active_coefficient)
+                    my_dataframe = MyRobustScaler(my_dataframe, columns)
                     saveAll(dataFrameWidget, my_dataframe ,rerun=False)
+
             if (preprocessing == 'Quantile Transformer'):
+                columns = st.multiselect(
+                    "Which columns modify?",
+                    numeric_object_cols,
+                    [active_coefficient]
+                )
                 distribution = st.selectbox('distribution',
                                             ['uniform','normal'])
                 n_quantiles = st.slider("n_quantiles", min_value=0, max_value=100, value=5, step=1)
                 if (st.button("Apply Quantile Transformer" )):
-                    my_dataframe = MyQuantileTransformer(my_dataframe,active_coefficient,distribution,n_quantiles)
+                    my_dataframe = MyQuantileTransformer(my_dataframe,columns,distribution,n_quantiles)
                     saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
             if (preprocessing == 'Normalization'):
@@ -112,8 +138,6 @@ def loadInterface():
                                                                        numerical_cols=numeric_object_cols)
                     saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
-
-#            'Scale', 'Resize Range', 'Missing Value Strategy'
             if preprocessing == 'Delete column':
                 if st.button("Delete column"):
                     my_dataframe, active_coefficient, numeric_object_cols = dropColumn(my_dataframe,active_coefficient,numeric_object_cols)
@@ -184,14 +208,6 @@ def loadInterface():
         else:
             histogramWithKomogorov(active_coefficient,my_dataframe)
 
-        #comparisonCharts(active_coefficient,my_dataframe,numeric_object_cols)
-        #chartsCoordinator(active_coefficient, my_dataframe, numeric_object_cols)
-        #targets = pf.getClassificationColums(my_dataframe)
-        #if (len(numeric_object_cols) <= 6 and (len(targets) > 0)):
-        #    target = st.selectbox(
-        #            'Target ',
-        #            targets)
-        #    crossCharts(my_dataframe, target)
 
         charts(my_dataframe, active_coefficient)
 
@@ -230,7 +246,7 @@ def loadInterface():
 
     metrics = st.multiselect(
         "Which metrics show?",
-        ['classification score','MAE', 'MSE', 'RMSE', 'RMSLE', 'R squared'],
+        ['classification score','MAE', 'MSE', 'RMSE', 'RMSLE'],
         ['classification score','MAE', 'MSE', 'RMSE']
     )
     original_option_use_to_predict = list()

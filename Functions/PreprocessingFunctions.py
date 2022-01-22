@@ -5,6 +5,8 @@ import scipy.stats as sc
 from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, PowerTransformer, PolynomialFeatures
 from Functions import FileSystemFunctions as fsf
 
+
+
 def getObjectsColumns(my_dataframe):
     s = (my_dataframe.dtypes == 'object')
     object_cols = list(s[s].index)
@@ -137,26 +139,29 @@ def standarization(dataframe,active_coefficient):
     dataframe[active_coefficient] = scale.transform(dataframe[[active_coefficient]])
     return dataframe[active_coefficient]
 
-def MyQuantileTransformer(dataframe,column,distribution="uniform",n_quantiles=6):
-    fsf.saveLastChange(dataframe, column)
-    qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, output_distribution=distribution)
-    X = dataframe[column].to_numpy().reshape(-1,1)
-    result = qt.fit_transform(X)
-    dataframe[column] = result
+def MyQuantileTransformer(dataframe,columns,distribution="uniform",n_quantiles=6):
+    fsf.saveLastChange(dataframe)
+    for column in columns:
+        qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, output_distribution=distribution)
+        X = dataframe[column].to_numpy().reshape(-1,1)
+        result = qt.fit_transform(X)
+        dataframe[column] = result
     return dataframe
 
-def MyRobustScaler(dataframe,column):
-    fsf.saveLastChange(dataframe, column)
-    X = dataframe[column].to_numpy().reshape(-1,1)
-    rs = RobustScaler().fit_transform(X)
-    dataframe[column] = rs
+def MyRobustScaler(dataframe,columns):
+    fsf.saveLastChange(dataframe)
+    for column in columns:
+        X = dataframe[column].to_numpy().reshape(-1,1)
+        rs = RobustScaler().fit_transform(X)
+        dataframe[column] = rs
     return dataframe
 
-def MyPowerTransformer(dataframe,column,method="yeo-johnson"):
-    fsf.saveLastChange(dataframe, column)
-    X = dataframe[column].to_numpy().reshape(-1, 1)
-    pt = PowerTransformer(method=method).fit_transform(X)
-    dataframe[column] = pt
+def MyPowerTransformer(dataframe,columns,method="yeo-johnson"):
+    fsf.saveLastChange(dataframe)
+    for column in columns:
+        X = dataframe[column].to_numpy().reshape(-1, 1)
+        pt = PowerTransformer(method=method).fit_transform(X)
+        dataframe[column] = pt
     return dataframe
 
 #def MyNormalizer(dataframe,column):

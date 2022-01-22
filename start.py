@@ -34,6 +34,7 @@ if (json_widget_saver['upload_file'] == "1"):
 elif (upload_csv is not None and example_dataset == False ):
 
     save_uploadedfile(upload_csv)
+    st.success("Saved File:{} on Server".format(upload_csv.name))
     save_uploadedfile(upload_csv,"original")
     json_widget_saver['upload_file'] = "1"
     saveWidgets()

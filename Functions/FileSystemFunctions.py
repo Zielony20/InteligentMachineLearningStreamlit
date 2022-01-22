@@ -28,7 +28,7 @@ def save_df_to_csv(df, name="data"):
 def save_uploadedfile(uploadedfile,name="data"):
     with open(PWD + '/'+name+'.csv', "wb") as f:
         f.write(uploadedfile.getbuffer())
-    return st.success("Saved File:{} on Server".format(uploadedfile.name))
+    #return st.success("Saved File:{} on Server".format(uploadedfile.name))
 
 def download_csv(df):
     csv = convert_df(df) #df.to_csv().encode()

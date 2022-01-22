@@ -30,6 +30,7 @@ def testModel(model,trainX, validX, trainY, validY,X,Y, metrics, scoring=None, s
         print(round(cvs.mean(), 2))
         st.title('Mean cross-validation score: '+str(round(cvs.mean()*100, 2))+"%")
         print(cvs)
+        #st.write(cvs)
         st.title('Standard deviation of scores: ' + str(round(cvs.std(), 2)))
     #if scaling="poly":
 
