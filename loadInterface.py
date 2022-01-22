@@ -48,7 +48,7 @@ def loadInterface():
             if(active_coefficient in numeric_object_cols):
                 preprocessing = st.selectbox(
                 'Choose preprocessing operation',
-                ['Rename', 'Create New Column', 'Delete column', 'Scale', 'Resize Range',
+                ['Rename', 'Create New Column','Math Operation' , 'Delete column', 'Scale', 'Resize Range',
                  'Normalization', 'Standarization', 'Quantile Transformer',
                  'Robust Scaler', 'Power Transformer'])
                 # inactive
@@ -63,6 +63,13 @@ def loadInterface():
                 if st.button("Apply"):
                     my_dataframe.rename(columns={active_coefficient: column_name}, inplace=True)
                     dataFrameWidget = saveAll(dataFrameWidget, my_dataframe ,rerun=True, active_coefficient=True)
+            if (preprocessing == 'Math Operation'):
+
+                my_dataframe, apply = mathOperation(my_dataframe, active_coefficient)
+                if apply:
+                    saveAll(dataFrameWidget, my_dataframe, rerun=True)
+
+                apply = False
 
             if (preprocessing == 'Create New Column'):
 

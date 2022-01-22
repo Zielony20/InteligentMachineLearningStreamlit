@@ -16,7 +16,6 @@ from Functions.FileSystemFunctions import get_binary_file_downloader_html
 
 
 def predictCoefficient(model,columns):
-
     cols = []
     for c in columns:
         cols.append(st.text_input(c))
@@ -24,7 +23,6 @@ def predictCoefficient(model,columns):
         st.text(model.predict(cols))
 
 def testModel(model,trainX, validX, trainY, validY,X,Y, metrics, scoring=None, scaling=None):
-    #st.title(Y.nunique)
     if(len(metrics)==0 or "classification score" in metrics):
         cvs = cross_val_score(model, X, Y, cv=5, scoring=scoring)
         print(round(cvs.mean(), 2))
@@ -32,7 +30,6 @@ def testModel(model,trainX, validX, trainY, validY,X,Y, metrics, scoring=None, s
         print(cvs)
         #st.write(cvs)
         st.title('Standard deviation of scores: ' + str(round(cvs.std(), 2)))
-    #if scaling="poly":
 
     if(len(metrics)>0):
         if ("MSE" in metrics):
@@ -65,14 +62,7 @@ def testModel(model,trainX, validX, trainY, validY,X,Y, metrics, scoring=None, s
     joblib.dump(model, "my_model.pkl")
     get_binary_file_downloader_html("my_model.pkl", "model")
 
-
-    #predictCoefficient(model, X.columns)
-
 def splitData(my_dataframe,option_use_to_predict,value_to_predict):
-
-    #df = my_dataframe[option_use_to_predict]
-    #print(my_dataframe)
-    #print(option_use_to_predict)
     X = my_dataframe[option_use_to_predict]
     Y = my_dataframe[value_to_predict]
     finaltrainX, finaltestX, finaltrainY, finaltestY = train_test_split(X,
@@ -81,8 +71,6 @@ def splitData(my_dataframe,option_use_to_predict,value_to_predict):
     return finaltrainX, finaltestX, finaltrainY, finaltestY, X, Y
 
 def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_model):
-
-    #finaltrainX, finaltestX, finaltrainY, finaltestY, X, Y = splitData(my_dataframe,option_use_to_predict,value_to_predict)
 
     if algorithm_model == 'LinearRegression':
         first, second, third, forth, fifth = st.columns((1, 1, 1, 1, 1))

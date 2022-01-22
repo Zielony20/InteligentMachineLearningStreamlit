@@ -174,6 +174,62 @@ def MyPowerTransformer(dataframe,columns,method="yeo-johnson"):
 #    return dataframe
 
 
+def mathOperation(dataframe, column_name):
+
+    if( min(dataframe[column_name])>0 ):
+        operation = st.selectbox('choose operation',
+                             ['Addition', 'Multiplication', 'Raise to power', 'count the logarithm'])
+    else:
+        operation = st.selectbox('choose operation',
+                                 ['Addition', 'Multiplication', 'Raise to power'])
+
+    apply = False
+    if (operation == 'count the logarithm'):
+        #base = st.slider("base", min_value=2, max_value=100, value=0, step=1)
+        base = st.selectbox("base",[2,'E',10])
+        if st.button("Apply"):
+            fsf.saveLastChange(dataframe)
+            if(base==2):
+                dataframe[column_name] = np.log2(dataframe[column_name])
+            elif(base=='E'):
+                dataframe[column_name] = np.log(dataframe[column_name])
+            elif(base==10):
+                dataframe[column_name] = np.log10(dataframe[column_name])
+
+            #dataframe[column_name] = dataframe[column_name] / np.log(base)
+            apply = True
+
+    if (operation == 'Addition'):
+        cols = st.multiselect("choose columns to add", getNumericalColumns(dataframe), [])
+        number = float(st.text_input("number to add",0))
+        if (st.button("Apply addition")):
+            fsf.saveLastChange(dataframe)
+            for c in cols:
+                dataframe[column_name] = dataframe[column_name] + dataframe[c]
+            dataframe[column_name] = dataframe[column_name] + number
+            apply = True
+
+    if (operation == 'Multiplication'):
+        cols = st.multiselect("choose columns to add", getNumericalColumns(dataframe), [])
+        number = float(st.text_input("number to multiple",1))
+        if st.button("Apply multiplication"):
+            fsf.saveLastChange(dataframe)
+            for c in cols:
+                dataframe[column_name] = dataframe[column_name] * dataframe[c]
+            dataframe[column_name] = dataframe[column_name] * number
+            apply = True
+
+    if (operation == 'Raise to power'):
+        power = st.slider("Power", min_value=0, max_value=9, value=1, step=1)
+
+        if st.button("Apply exponentiation"):
+            fsf.saveLastChange(dataframe)
+            dataframe[column_name] = np.power(dataframe[column_name], power)
+            apply = True
+
+    return dataframe, apply
+
+
 def CreateNewColumn(dataframe,column,column_name="Copy",operation='Duplicate',numeric_object_cols=""):
 
     apply=False
