@@ -105,10 +105,11 @@ def dropRows(my_dataframe,active_coefficient):
     my_dataframe = my_dataframe.dropna(axis=0, how='any', thresh=None, subset=[active_coefficient], inplace=False)
     return my_dataframe
 
-def normalizedAll(dataframe,numerical_cols):
+def normalizedAll(dataframe,columns):
     fsf.saveLastChange(dataframe)
-    norm = MinMaxScaler().fit(dataframe[numerical_cols])
-    return pd.DataFrame( norm.transform(dataframe[numerical_cols]))
+    norm = MinMaxScaler().fit(dataframe[columns])
+    dataframe[columns] = pd.DataFrame( norm.transform(dataframe[columns]))
+    return dataframe
 
 def normalized(dataframe,active_coefficient):
     fsf.saveLastChange(dataframe, active_coefficient)
@@ -124,14 +125,15 @@ def polyFeature(dataframe,column,degree):
     dataframe[column] = result
     return dataframe
 
-def standarizationAll(dataframe,numerical_cols):
+def standarizationAll(dataframe,columns):
     fsf.saveLastChange(dataframe)
-    train_stand = dataframe[numerical_cols].copy()
+    train_stand = dataframe[columns].copy()
 
-    for i in numerical_cols:
+    for i in columns:
         scale = StandardScaler().fit(train_stand[[i]])
         train_stand[i] = scale.transform(train_stand[[i]])
-    return train_stand
+    dataframe[columns] = train_stand
+    return dataframe
 
 def standarization(dataframe,active_coefficient):
     fsf.saveLastChange(dataframe, active_coefficient)
@@ -164,24 +166,16 @@ def MyPowerTransformer(dataframe,columns,method="yeo-johnson"):
         dataframe[column] = pt
     return dataframe
 
-#def MyNormalizer(dataframe,column):
-#    return dataframe
-
-#def MyStandardScaler(dataframe,column):
-#    return dataframe
-
-#def MyMinMaxScaler(dataframe,column):
-#    return dataframe
 
 
 def mathOperation(dataframe, column_name):
 
     if( min(dataframe[column_name])>0 ):
         operation = st.selectbox('choose operation',
-                             ['Addition', 'Multiplication', 'Raise to power', 'count the logarithm'])
+                             ['Addition','Subtraction', 'Multiplication', 'Raise to power', 'count the logarithm'])
     else:
         operation = st.selectbox('choose operation',
-                                 ['Addition', 'Multiplication', 'Raise to power'])
+                                 ['Addition','Subtraction', 'Multiplication', 'Raise to power'])
 
     apply = False
     if (operation == 'count the logarithm'):
@@ -208,7 +202,15 @@ def mathOperation(dataframe, column_name):
                 dataframe[column_name] = dataframe[column_name] + dataframe[c]
             dataframe[column_name] = dataframe[column_name] + number
             apply = True
-
+    if (operation == 'Subtraction'):
+        cols = st.multiselect("choose columns to add", getNumericalColumns(dataframe), [])
+        number = float(st.text_input("number to add", 0))
+        if (st.button("Apply addition")):
+            fsf.saveLastChange(dataframe)
+            for c in cols:
+                dataframe[column_name] = dataframe[column_name] - dataframe[c]
+            dataframe[column_name] = dataframe[column_name] - number
+            apply = True
     if (operation == 'Multiplication'):
         cols = st.multiselect("choose columns to add", getNumericalColumns(dataframe), [])
         number = float(st.text_input("number to multiple",1))

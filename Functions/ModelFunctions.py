@@ -4,14 +4,14 @@ import streamlit as st
 from sklearn.model_selection import train_test_split, StratifiedShuffleSplit, cross_val_score
 from sklearn.linear_model import LinearRegression, LogisticRegression, SGDClassifier, Lasso
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.cluster import KMeans
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
-import joblib
+
 from Functions.FileSystemFunctions import get_binary_file_downloader_html
 
 
@@ -23,44 +23,54 @@ def predictCoefficient(model,columns):
         st.text(model.predict(cols))
 
 def testModel(model,trainX, validX, trainY, validY,X,Y, metrics, scoring=None, scaling=None):
+
+    cs, cs_std, mae, mse, rmse, rmsle = False, False, False, False, False, False
+
     if(len(metrics)==0 or "classification score" in metrics):
         cvs = cross_val_score(model, X, Y, cv=5, scoring=scoring)
+        cs = cvs.mean()
+        cs_std = cvs.std()
         print(round(cvs.mean(), 2))
-        st.title('Mean cross-validation score: '+str(round(cvs.mean()*100, 2))+"%")
+        #st.title('Mean cross-validation score: '+str(round(cvs.mean()*100, 2))+"%")
         print(cvs)
         #st.write(cvs)
-        st.title('Standard deviation of scores: ' + str(round(cvs.std(), 2)))
+        #st.title('Standard deviation of scores: ' + str(round(cvs.std(), 2)))
 
     if(len(metrics)>0):
         if ("MSE" in metrics):
-     #       st.title("MSE: " + str(model_mse))
+     #    st.title("MSE: " + str(model_mse))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_mean_squared_error")
+            mae = -1*cvs.mean()
             print(cvs)
-            st.title('Cross-validation MSE: ' + str(round(-1*cvs.mean(),2)))
+            #st.title('Cross-validation MSE: ' + str(round(-1*cvs.mean(),2)))
         if ("RMSE" in metrics):
       #      st.title("RMSE: " + str(round(model_rmse, 2)))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_root_mean_squared_error")
+            mse = -1 * cvs.mean()
             print(cvs)
-            st.title('Cross-validation RMSE: ' + str(round(-1*cvs.mean(),2)))
+            #st.title('Cross-validation RMSE: ' + str(round(-1*cvs.mean(),2)))
         if ("MAE" in metrics):
        #     st.title("MAE: " + str(round(model_mae, 2)))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_mean_absolute_error")
+            rmse = -1 * cvs.mean()
             print(cvs)
-            st.title('Cross-validation MAE: ' + str(round(-1*cvs.mean(),2)))
+            #st.title('Cross-validation MAE: ' + str(round(-1*cvs.mean(),2)))
         if ("RMSLE" in metrics):
         #    st.title("RMSLE: " + str(round(model_rmsle, 2)))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_mean_squared_log_error")
+            rmsle = -1 * cvs.mean()
             print(cvs)
-            st.title('Cross-validation RMSLE: ' + str(round(-1*cvs.mean(),2)))
+            #st.title('Cross-validation RMSLE: ' + str(round(-1*cvs.mean(),2)))
         if ("R2 Squared" in metrics):
          #   st.title("R2 Squared: " + str(round(model_r2, 2)))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="r2")
+            r2 = cvs.mean()
             print(cvs)
-            st.title('Cross-validation R2: ' + str(round(cvs.mean(),2)))
+            #st.title('Cross-validation R2: ' + str(round(cvs.mean(),2)))
 
     model = model.fit(X,Y)
-    joblib.dump(model, "my_model.pkl")
-    get_binary_file_downloader_html("my_model.pkl", "model")
+
+    return cs,cs_std, mae, mse, rmse, rmsle, model
 
 def splitData(my_dataframe,option_use_to_predict,value_to_predict):
     X = my_dataframe[option_use_to_predict]
@@ -70,7 +80,7 @@ def splitData(my_dataframe,option_use_to_predict,value_to_predict):
                                                                         random_state=42)
     return finaltrainX, finaltestX, finaltrainY, finaltestY, X, Y
 
-def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_model):
+def createModel(algorithm_model):
 
     if algorithm_model == 'LinearRegression':
         first, second, third, forth, fifth = st.columns((1, 1, 1, 1, 1))
@@ -101,8 +111,6 @@ def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_mo
         if st.button("Create Model"):
 
             forest_reg = RandomForestRegressor(criterion=criterion,max_depth=max_depth,min_samples_leaf=min_samples_leaf)
-            #forest_reg.fit(finaltrainX, finaltrainY)
-            #testModel(forest_reg, finaltrainX, finaltestX, finaltrainY, finaltestY,X,Y, metrics)
             return True ,forest_reg
 
     elif algorithm_model == 'DecisionTreeRegressor':
@@ -117,8 +125,6 @@ def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_mo
             decisionTree = DecisionTreeRegressor(criterion=criterion,splitter="best",max_depth=max_depth,min_samples_split=2,
                                                   min_samples_leaf=min_samples_leaf,min_weight_fraction_leaf=0.0,max_features=None,
                                                   random_state=42, max_leaf_nodes=None, min_impurity_decrease=0.0,ccp_alpha=0.0)
-            #decisionTree.fit(finaltrainX, finaltrainY)
-            #testModel(decisionTree, finaltrainX, finaltestX, finaltrainY, finaltestY,X,Y,metrics)
             return True, decisionTree
 
     elif algorithm_model == "Lasso":
@@ -150,7 +156,6 @@ def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_mo
             # testModel(decisionTree, finaltrainX, finaltestX, finaltrainY, finaltestY,X,Y,metrics)
             return True, decisionTree
 
-
     elif algorithm_model == "KNeighborsClassifier":
         first, second, third, forth, fifth = st.columns((1, 1, 1, 1, 1))
         with first:
@@ -164,6 +169,22 @@ def createModel(my_dataframe,option_use_to_predict,value_to_predict,algorithm_mo
             #neigh.fit(finaltrainX, finaltrainY)
             #testModel(neigh, finaltrainX, finaltestX, finaltrainY, finaltestY,X,Y, metrics)
             return True, neigh
+
+    elif algorithm_model == "KNeighborsRegressor":
+        first, second, third, forth, fifth = st.columns((1, 1, 1, 1, 1))
+        with first:
+            algorithm = st.selectbox("algorithm", ["auto", "ball_tree", "kd_tree", "brute"])
+        with second:
+            n_neighbors = st.selectbox("n_neighbors", [2, 3, 4, 5, 6, 7, 8, 9])
+        with third:
+            weights = st.selectbox("weights", ["uniform", "distance"])
+        if st.button("Create Model"):
+            neigh = KNeighborsRegressor(n_neighbors=n_neighbors, weights=weights, algorithm=algorithm)
+            #neigh.fit(finaltrainX, finaltrainY)
+            #testModel(neigh, finaltrainX, finaltestX, finaltrainY, finaltestY,X,Y, metrics)
+            return True, neigh
+
+
 
     elif algorithm_model == "SGDClassifier":
         if st.button("Create Model"):

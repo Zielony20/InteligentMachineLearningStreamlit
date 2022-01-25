@@ -9,7 +9,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 def print_chart_with_target(my_dataframe, active_coefficient, coefficient_to_compere, target):
-    #print(my_dataframe.loc[:,[active_coefficient, coefficient_to_compere, target]])
     df = my_dataframe.loc[:,[active_coefficient, coefficient_to_compere, target]]
 
     st.vega_lite_chart(df, {
@@ -77,7 +76,8 @@ def histSimilarity(function):
     list_p["Rayleigh"] = p
 
 
-    dic = dict(sorted(list_p.items(),key= lambda x:x[-1]))
+    dic = dict(sorted(list_p.items(),key=lambda x:x[1],reverse=True))
+
     #p_values = dict(sorted(list_p.items(), key=lambda x: x[1]))
     st.text("Most similar distributions:")
 
@@ -87,31 +87,19 @@ def histSimilarity(function):
             break
         if(stat > 0):
             counter += 1
-            st.text(str(counter)+"."+dist+"  p value = "+'{:0.3e}'.format(list_p[dist])  )
+            st.text("{}.{} p value = {:0.2e}".format(str(counter),dist,list_p[dist])  )
         if(counter == 0 and stat == 0):
             st.text("distributions not recognized")
             break
 
-    #counter = 0
-    #for dist,stat in p_values.items():
-    #    if(counter == 6):
-    #        break
-    #    counter += 1
-    #    st.text(str(counter)+"."+dist+"p_value = "+str(stat))
-
 
 
 def histogramWithKomogorov(active_coefficient,my_dataframe):
-    kolmogorov, histPlace, _ = st.columns((1, 4, 1))
+    kolmogorov, histPlace, stats = st.columns((2, 4, 1))
     with histPlace:
         int_val = [.01]  # st.number_input('hist bins', value=1, step=1,format="%.2f")
         group_labels = [active_coefficient]
         hist_data = [my_dataframe[active_coefficient].to_numpy()]
-        # Create distplot with custom bin_size
-        #        fig = ff.create_distplot(
-        #           hist_data, group_labels, bin_size=int_val, histnorm="probability density")
-        # Plot!
-        #      st.plotly_chart(fig, use_container_width=True)
 
         fig = px.histogram(my_dataframe[active_coefficient], x=active_coefficient, facet_col_spacing=1,
                            marginal="violin", histnorm=None, barmode="overlay")
@@ -122,6 +110,20 @@ def histogramWithKomogorov(active_coefficient,my_dataframe):
             st.text('\n')
             st.text('\n')
             histSimilarity(my_dataframe[active_coefficient].to_numpy())
+
+        with stats:
+            st.text('\n')
+            st.text('\n')
+            st.text('\n')
+            # st.text('count:' + str(round(my_dataframe.describe().count()[active_coefficient], 2)))
+            st.text('mean:' + str(round(my_dataframe[active_coefficient].mean(), 2)))
+            st.text('std:' + str(round(my_dataframe[active_coefficient].std(), 2)))
+            st.text('max:' + str(round(my_dataframe[active_coefficient].max(), 2)))
+            st.text('min:' + str(round(my_dataframe[active_coefficient].min(), 2)))
+            # st.text('unique:' + str(round(my_dataframe.describe(include='all').unique()[active_coefficient], 2)))
+            # st.text('freq:' + str(round(my_dataframe.describe(include='all').freq(), 2)))
+            print(my_dataframe[active_coefficient].describe())
+
 
 def simpleCharts(my_dataframe, active_coefficient,targets,numeric_object_cols):
     c1, c2, c3, c4 = st.columns((1, 1, 1, 1))

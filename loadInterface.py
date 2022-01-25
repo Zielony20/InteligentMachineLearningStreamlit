@@ -3,6 +3,8 @@ from Functions.FileSystemFunctions import *
 from Functions.JsonHandler import *
 from Functions.ChartsFunctions import *
 from Functions.PreprocessingFunctions import *
+import joblib
+
 
 def loadInterface():
     original_dataframe = pd.read_csv(PWD + '/original.csv',index_col=None)
@@ -11,12 +13,10 @@ def loadInterface():
     object_cols = getObjectsColumns(my_dataframe)
     numeric_object_cols = getNumericalColumns(my_dataframe)
     active_coefficient = json_widget_saver['active_coefficient']
-
     class_object_cols = getClassificationColums(my_dataframe)
 
-####################################################
+
 #####################sidebar########################
-####################################################
 
     with st.sidebar:
         csv = convert_df(my_dataframe)
@@ -128,21 +128,25 @@ def loadInterface():
                     saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
             if (preprocessing == 'Normalization'):
+                columns = st.multiselect(
+                    "Which columns modify?",
+                    numeric_object_cols,
+                    [active_coefficient]
+                )
                 if st.button("Apply normalization"):
-                    my_dataframe[active_coefficient] = normalized(my_dataframe, active_coefficient)
-                    saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
-                if st.button("Apply normalization on all columns"):
-                    my_dataframe[numeric_object_cols] = normalizedAll(my_dataframe, numerical_cols=numeric_object_cols)
+                    my_dataframe[numeric_object_cols] = normalizedAll(my_dataframe, columns)
                     saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
             if (preprocessing == 'Standarization'):
+                columns = st.multiselect(
+                    "Which columns modify?",
+                    numeric_object_cols,
+                    [active_coefficient]
+                )
                 if st.button("Apply standarization"):
-                    my_dataframe[active_coefficient] = standarization(dataframe=my_dataframe, active_coefficient=active_coefficient)
-                    saveAll(dataFrameWidget, my_dataframe ,rerun=False)
-                if st.button("Apply standarization on all columns"):
-                    my_dataframe[numeric_object_cols] = standarizationAll(dataframe=my_dataframe,
-                                                                       numerical_cols=numeric_object_cols)
+
+                    my_dataframe[numeric_object_cols] = standarizationAll(my_dataframe,columns)
                     saveAll(dataFrameWidget, my_dataframe ,rerun=False)
 
             if preprocessing == 'Delete column':
@@ -202,20 +206,18 @@ def loadInterface():
                     my_dataframe = polyFeature(my_dataframe, active_coefficient, degree)
                     saveAll(dataFrameWidget, my_dataframe, rerun=True, active_coefficient=True)
 
-#End of sidebar
+#################End of sidebar#####################
 
     if active_coefficient in numeric_object_cols:
 
         _,title,_ = st.columns((1,1,1))
         with title:
+            pass
             #st.title(active_coefficient)
-            st.markdown("<h1 style='text-align: center; color: Black;'> %s </h1>"%active_coefficient, unsafe_allow_html=True)
         if active_coefficient in class_object_cols:
             counterPieChart(my_dataframe,active_coefficient)
         else:
             histogramWithKomogorov(active_coefficient,my_dataframe)
-
-
         charts(my_dataframe, active_coefficient)
 
     correlationHeatmap(my_dataframe)
@@ -244,35 +246,75 @@ def loadInterface():
 
         algorithm_model = st.selectbox(
         'Which Machine Learning model use?',
-        ['LinearRegression','DecisionTreeClassifier','RandomForestRegressor', 'KNeighborsClassifier','LogisticRegression','SGDClassifier'])
+        ['DecisionTreeClassifier','RandomForestRegressor', 'KNeighborsClassifier','LogisticRegression','SGDClassifier'])
 
     else:
         algorithm_model = st.selectbox(
             'Which Machine Learning model use?',
-            ['LinearRegression', 'DecisionTreeRegressor', 'RandomForestRegressor','Lasso','SupportVectorRegression'])
+            ['LinearRegression', 'DecisionTreeRegressor', 'RandomForestRegressor','Lasso','SupportVectorRegression', "KNeighborsRegressor"])
 
     metrics = st.multiselect(
         "Which metrics show?",
         ['classification score','MAE', 'MSE', 'RMSE', 'RMSLE'],
-        ['classification score','MAE', 'MSE', 'RMSE']
+        ['MAE', 'MSE', 'RMSE']
     )
+
     original_option_use_to_predict = list()
     for i in original_dataframe.columns:
         if i in option_use_to_predict:
             original_option_use_to_predict.append(i)
-    readyToTests ,model = createModel([my_dataframe,original_dataframe], option_use_to_predict, value_to_predict, algorithm_model)
+
+    readyToTests ,model = createModel(algorithm_model)
 
     if(readyToTests):
         modify_data, original_data = st.columns((1,1))
+        with original_data:
+            st.title("Original data")
+            trainX, validX, trainY, validY, X, Y = splitData(original_dataframe, original_option_use_to_predict,
+                                                             value_to_predict)
+            cs2,cs2_std, mae2, mse2, rmse2, rmsle2, model2 = testModel(model, trainX, validX, trainY, validY, X, Y, metrics)
+            if cs2:
+                st.metric(label="Mean cross-validation score:", value=str(round(cs2 * 100, 2)) + "%", delta=None, delta_color="off")
+
+                st.markdown('<div style="height:20px"></div>', unsafe_allow_html=True)
+                st.metric(label="Standard deviation:", value=str(round(cs2_std, 2)), delta=None, delta_color="off")
+                st.markdown('<div style="height:20px"></div>', unsafe_allow_html=True)
+
+            if mae2:
+                st.metric(label="Mean cross-validation MAE:", value=str(round(mae2, 2)), delta=None, delta_color="off")
+                st.markdown('<div style="height:20px"></div>', unsafe_allow_html=True)
+
+            if mse2:
+                st.metric(label="Mean cross-validation MSE", value=str(round(mse2, 2)), delta=None, delta_color="off")
+                st.markdown('<div style="height:20px"></div>', unsafe_allow_html=True)
+
+            if rmse2:
+                st.metric(label="Mean cross-validation RMSE", value=str(round(rmse2, 2)), delta=None, delta_color="off")
+                st.markdown('<div style="height:20px"></div>', unsafe_allow_html=True)
+
+            if rmsle2:
+                st.metric(label="Mean cross-validation RMSLE", value=str(round(rmsle2, 2)), delta=None, delta_color="off")
+                st.markdown('<div style="height:20px"></div>', unsafe_allow_html=True)
+
+            joblib.dump(model2, "my_original_model.pkl")
+            get_binary_file_downloader_html("my_original_model.pkl", "model2")
+
         with modify_data:
             st.title("Data with preprocessing")
             trainX, validX, trainY, validY, X, Y = splitData(my_dataframe,option_use_to_predict,value_to_predict)
-            testModel(model, trainX, validX, trainY, validY, X, Y , metrics)
-        with original_data:
-            st.title("Original data")
-            trainX, validX, trainY, validY, X, Y = splitData(original_dataframe,original_option_use_to_predict,value_to_predict)
-            testModel(model, trainX, validX, trainY, validY, X, Y , metrics)
+            cs,cs_std, mae, mse, rmse, rmsle, model = testModel(model, trainX, validX, trainY, validY, X, Y , metrics)
 
+            if cs:
+                st.metric(label="Mean cross-validation score:", value=str(round(cs * 100, 2)) + "%", delta=str(round((cs-cs2) * 100, 3)) + "%")
+                st.metric(label="Standard deviation:", value=str(round(cs_std, 2)), delta=round(cs_std - cs2_std, 3), delta_color="inverse")
+            if mae:
+                st.metric(label="Mean cross-validation MAE:", value=str(round(mae, 2)), delta=round(mae-mae2, 3), delta_color="inverse")
+            if mse:
+                st.metric(label="Mean cross-validation MSE", value=str(round(mse, 2)), delta=round(mse-mse2, 3), delta_color="inverse")
+            if rmse:
+                st.metric(label="Mean cross-validation RMSE", value=str(round(rmse, 2)), delta=round(rmse-rmse2, 3), delta_color="inverse")
+            if rmsle:
+                st.metric(label="Mean cross-validation RMSLE", value=str(round(rmsle, 2)), delta=round(rmsle-rmsle2, 3), delta_color="inverse")
 
-
-
+            joblib.dump(model, "my_model.pkl")
+            get_binary_file_downloader_html("my_model.pkl", "model")
