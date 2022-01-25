@@ -8,3 +8,4 @@ notatki
 dataframeGenerator.py
 .streamlit
 my_model.pkl
+my_original_model.pkl
