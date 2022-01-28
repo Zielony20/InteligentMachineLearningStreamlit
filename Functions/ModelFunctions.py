@@ -38,23 +38,17 @@ def testModel(model,trainX, validX, trainY, validY,X,Y, metrics, scoring=None, s
 
     if(len(metrics)>0):
         if ("MSE" in metrics):
-     #    st.title("MSE: " + str(model_mse))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_mean_squared_error")
             mae = -1*cvs.mean()
             print(cvs)
-            #st.title('Cross-validation MSE: ' + str(round(-1*cvs.mean(),2)))
         if ("RMSE" in metrics):
-      #      st.title("RMSE: " + str(round(model_rmse, 2)))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_root_mean_squared_error")
             mse = -1 * cvs.mean()
             print(cvs)
-            #st.title('Cross-validation RMSE: ' + str(round(-1*cvs.mean(),2)))
         if ("MAE" in metrics):
-       #     st.title("MAE: " + str(round(model_mae, 2)))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_mean_absolute_error")
             rmse = -1 * cvs.mean()
             print(cvs)
-            #st.title('Cross-validation MAE: ' + str(round(-1*cvs.mean(),2)))
         if ("RMSLE" in metrics):
         #    st.title("RMSLE: " + str(round(model_rmsle, 2)))
             cvs = cross_val_score(model, X, Y, cv=5, scoring="neg_mean_squared_log_error")
