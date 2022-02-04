@@ -41,12 +41,6 @@ def print_chart(my_dataframe, active_coefficient, coefficient_to_compere):
 def print_chart2(my_dataframe, active_coefficient, coefficient_to_compere, target, color="Bluered"):
 
     fig = px.scatter(my_dataframe, x=active_coefficient, y=coefficient_to_compere, log_x=False, color=target, color_continuous_scale=color) #Bluered #Rainbow
-    fig.update_layout(
-        font=dict(
-            family="Times New Roman",
-            size=22,
-        )
-    )
     st.plotly_chart(fig, use_container_width=True)
 
 def print_chart_with_options(my_dataframe, active_coefficient,targets,numeric_object_cols):
@@ -54,8 +48,7 @@ def print_chart_with_options(my_dataframe, active_coefficient,targets,numeric_ob
     with c2:
         to_compere = st.selectbox("To compare", numeric_object_cols)
         target = st.selectbox("Target  ", numeric_object_cols)
-        color = st.selectbox("Color Pattern: ", ["Bluered", "Rainbow", "Jet", "Plasma", "aggrnyl", "agsunset", "blackbody","blues","bluyl","brwnyl","bugn","bupu"])
-
+        color = st.selectbox("Color Pattern: ", ["Bluered", "Rainbow"])
     with c1:
         print_chart2(my_dataframe, active_coefficient, to_compere, target, color)
 
@@ -110,12 +103,6 @@ def histogramWithKomogorov(active_coefficient,my_dataframe):
 
         fig = px.histogram(my_dataframe[active_coefficient], x=active_coefficient, facet_col_spacing=1,
                            marginal="violin", histnorm=None, barmode="overlay")
-        fig.update_layout(
-            font=dict(
-                family="Times New Roman",
-                size=18,
-            )
-        )
         st.plotly_chart(fig, use_container_width=True)
 
         with kolmogorov:
@@ -161,7 +148,7 @@ def simpleCharts(my_dataframe, active_coefficient,targets,numeric_object_cols):
 
 def colorsCharts(my_dataframe, active_coefficient, targets, numeric_object_cols):
     target = st.selectbox("Target", numeric_object_cols)#targets
-    color = st.selectbox("Color pattern", [None,"Bluered", "Rainbow", "Jet", "Plasma","Picnic","Portland", "aggrnyl", "agsunset", "blackbody","blues","bluyl","brwnyl","bugn","bupu"])
+    color = st.selectbox("Color pattern", ["Bluered", "Rainbow"])
     cc1, cc2, cc3, cc4 = st.columns((1, 1, 1, 1))
 
     counter = 1
@@ -189,25 +176,17 @@ def crossCharts(my_dataframe,targets):
     target = st.selectbox("Target ", targets)
     df = my_dataframe
     numeric_object_cols = pf.getNumericalColumns(my_dataframe)
-    color = st.selectbox("Color pattern ",
-                        [None, "Bluered", "Rainbow", "Jet", "Plasma", "Picnic", "Portland", "aggrnyl", "agsunset",
-                         "blackbody", "blues", "bluyl", "brwnyl", "bugn", "bupu"])
-
     fig = px.scatter_matrix(df, dimensions=numeric_object_cols,
-                            color=target, color_continuous_scale=color) #agsunset #Bluered #Rainbow
+                            color=target, color_continuous_scale="Bluered") #agsunset #Bluered #Rainbow
     fig.update_layout(
         title="",
         dragmode='select',
-        width=800,
-        height=800,
-        #hovermode='closest',
-        font=dict(
-            family="Times New Roman",
-            size=20,
-        )
+        width=600,
+        height=600,
+        hovermode='closest',
+
     )
     st.plotly_chart(fig, use_container_width=True)
-
 
 def charts(my_dataframe,active_coefficient):
 
@@ -233,12 +212,6 @@ def charts(my_dataframe,active_coefficient):
 def pieChart(my_dataframe,active_coefficient,values):
     df = my_dataframe
     fig = px.pie(df, values=values, names=active_coefficient)
-    fig.update_layout(
-        font=dict(
-            family="Times New Roman",
-            size=18,
-        )
-    )
     st.plotly_chart(fig, use_container_width=True)
 
 def counterPieChart(my_dataframe,active_coefficient):
@@ -246,22 +219,13 @@ def counterPieChart(my_dataframe,active_coefficient):
     labels = df[active_coefficient].unique()
     values = df[active_coefficient].value_counts().values
     fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
-    fig.update_layout(
-        font=dict(
-            family="Times New Roman",
-            size=18,
-        )
-    )
     st.plotly_chart(fig, use_container_width=True)
+
 
 def correlationHeatmap(my_dataframe):
     fig = px.imshow(my_dataframe.corr(), color_continuous_scale="Bluered")
     #ax = sns.heatmap(my_dataframe.corr(), annot=True)
-    fig.update_layout(
-        font=dict(
-            family="Times New Roman",
-            size=18,
-        )
-    )
     st.plotly_chart(fig, use_container_width=True)
+
+
 
