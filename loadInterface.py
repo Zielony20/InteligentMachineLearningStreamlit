@@ -247,17 +247,21 @@ def loadInterface():
         algorithm_model = st.selectbox(
         'Which Machine Learning model use?',
         ['DecisionTreeClassifier','RandomForestRegressor', 'KNeighborsClassifier','LogisticRegression','SGDClassifier'])
-
+        metrics = st.multiselect(
+            "Which metrics show?",
+            ['classification score', 'MAE', 'MSE', 'RMSE', 'RMSLE'],
+            ['classification score']
+        )
     else:
         algorithm_model = st.selectbox(
             'Which Machine Learning model use?',
             ['LinearRegression', 'DecisionTreeRegressor', 'RandomForestRegressor','Lasso','SupportVectorRegression', "KNeighborsRegressor"])
 
-    metrics = st.multiselect(
-        "Which metrics show?",
-        ['classification score','MAE', 'MSE', 'RMSE', 'RMSLE'],
-        ['MAE', 'MSE', 'RMSE']
-    )
+        metrics = st.multiselect(
+            "Which metrics show?",
+            ['MAE', 'MSE', 'RMSE', 'RMSLE'],
+            ['MAE', 'MSE', 'RMSE']
+        )
 
     original_option_use_to_predict = list()
     for i in original_dataframe.columns:
