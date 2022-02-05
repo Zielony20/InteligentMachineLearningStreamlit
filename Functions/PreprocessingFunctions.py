@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import scipy.stats as sc
 from sklearn.preprocessing import MinMaxScaler, StandardScaler ,OneHotEncoder, QuantileTransformer, RobustScaler, PowerTransformer, PolynomialFeatures
 from Functions import FileSystemFunctions as fsf
 
